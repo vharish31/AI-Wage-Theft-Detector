@@ -31,6 +31,26 @@ export const normalizeJobAPI = async (job_type) => {
 };
 
 /**
+ * Validate location string
+ * @param {string} location 
+ */
+export const validateLocationAPI = async (location) => {
+  try {
+    const response = await apiClient.post('/validate-location', { location });
+    return response.data;
+  } catch (error) {
+    const isValid = Boolean(location && String(location).trim() && String(location).toLowerCase() !== 'unknown');
+    return {
+      is_valid: isValid,
+      city: location || '',
+      state: 'Tamil Nadu',
+      message: isValid ? 'Valid location' : 'Location required for accurate wage calculation.',
+      error: isValid ? null : 'Location cannot be empty'
+    };
+  }
+};
+
+/**
  * Extract work details from speech transcript using AI
  * @param {string} transcript 
  */

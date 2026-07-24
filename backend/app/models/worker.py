@@ -68,4 +68,25 @@ class JobCategoryPreviewResponse(BaseModel):
     expected_hourly_wage: float
     legal_act_ref: str
 
+class LocationValidateRequest(BaseModel):
+    location: Optional[str] = Field(default=None, example="Chennai")
+
+class LocationValidateResponse(BaseModel):
+    is_valid: bool
+    city: str
+    state: str
+    message: str
+    error: Optional[str] = None
+
+class LocationResolveRequest(BaseModel):
+    city: str = Field(..., example="Chennai")
+    state: Optional[str] = Field(default=None, example="Tamil Nadu")
+
+class LocationResolveResponse(BaseModel):
+    city: str
+    state: str
+    location_str: str
+    is_resolved: bool
+
+
 

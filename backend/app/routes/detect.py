@@ -3,10 +3,13 @@ from typing import List, Dict, Any
 from app.models.worker import (
     WageDetectRequest, WageDetectResponse,
     JobNormalizeRequest, JobNormalizeResponse,
-    JobCategoryPreviewRequest, JobCategoryPreviewResponse
+    JobCategoryPreviewRequest, JobCategoryPreviewResponse,
+    LocationValidateRequest, LocationValidateResponse,
+    LocationResolveRequest, LocationResolveResponse
 )
 from app.services.wage_service import detect_wage_theft, load_wage_rates
 from app.utils.job_validator import normalize_job_type, validate_job_type, get_job_category_info
+from app.utils.location_validator import validate_location, resolve_location
 
 router = APIRouter(prefix="", tags=["Wage Detection Engine"])
 
@@ -52,6 +55,24 @@ async def preview_job_category(payload: JobCategoryPreviewRequest):
     """
     info = get_job_category_info(payload.job_type, payload.location)
     return JobCategoryPreviewResponse(**info)
+
+@router.post("/validate-location", response_model=LocationValidateResponse, status_code=status.HTTP_200_OK)
+async def validate_location_endpoint(payload: LocationValidateRequest):
+    """
+    POST /validate-location
+    Validates if extracted location string is valid.
+    """
+    res = validate_location(payload.location)
+    return LocationValidateResponse(**res)
+
+@router.post("/resolve-location", response_model=LocationResolveResponse, status_code=status.HTTP_200_OK)
+async def resolve_location_endpoint(payload: LocationResolveRequest):
+    """
+    POST /resolve-location
+    Resolves city and state to legal wage jurisdiction.
+    """
+    res = resolve_location(payload.city, payload.state)
+    return LocationResolveResponse(**res)
 
 @router.get("/wage-rates", response_model=List[Dict[str, Any]])
 async def get_all_wage_rates():
