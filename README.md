@@ -239,4 +239,4 @@ Returns binary stream of PDF report attachment.
 ---
 
 ## 📄 License & Social Impact
-Distributed under the MIT License. Created for social impact, worker advocacy, and hackathon presentation.
+Created for social impact, worker advocacy, and hackathon presentation.
