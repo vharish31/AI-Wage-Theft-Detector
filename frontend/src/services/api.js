@@ -306,4 +306,20 @@ export const getWageTheftStatisticsAPI = async () => {
   }
 };
 
+/**
+ * POST /validate
+ * Call backend validation API with local fallback
+ */
+export const validateWorkDataAPI = async (payload) => {
+  try {
+    const response = await apiClient.post('/validate', payload);
+    return response.data;
+  } catch (error) {
+    console.warn('Backend validation endpoint offline, using local validation engine:', error.message);
+    const { validateWorkData } = await import('../utils/validation');
+    return validateWorkData(payload);
+  }
+};
+
 export default apiClient;
+

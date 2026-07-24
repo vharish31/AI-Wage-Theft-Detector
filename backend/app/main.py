@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from app.routes import speech, detect, complaint, wage_theft
+from app.routes import speech, detect, complaint, wage_theft, validate
 
 load_dotenv()
 
@@ -28,6 +28,8 @@ app.include_router(speech.router)
 app.include_router(detect.router)
 app.include_router(complaint.router)
 app.include_router(wage_theft.router)
+app.include_router(validate.router)
+
 
 @app.get("/", tags=["Health Check"])
 async def root():

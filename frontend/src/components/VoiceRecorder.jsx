@@ -34,6 +34,8 @@ export default function VoiceRecorder({ onTranscriptComplete, isExtracting }) {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'not-allowed') {
           setErrorMsg('Microphone access was denied. Please allow microphone permissions or type your work log manually below.');
+        } else if (event.error === 'no-speech') {
+          setErrorMsg('No speech detected. Please speak clearly into your microphone or use manual text input / sample prompts below.');
         } else {
           setErrorMsg(`Voice error: ${event.error}. You can use manual text input below.`);
         }
@@ -52,6 +54,7 @@ export default function VoiceRecorder({ onTranscriptComplete, isExtracting }) {
   }, []);
 
   const toggleListening = () => {
+    setErrorMsg('');
     if (isListening) {
       recognitionRef.current?.stop();
     } else {
@@ -66,6 +69,7 @@ export default function VoiceRecorder({ onTranscriptComplete, isExtracting }) {
 
   const handleSampleClick = (sampleText) => {
     setTranscript(sampleText);
+    setErrorMsg('');
   };
 
   const handleSubmit = () => {
@@ -73,6 +77,7 @@ export default function VoiceRecorder({ onTranscriptComplete, isExtracting }) {
       onTranscriptComplete(transcript);
     }
   };
+
 
   return (
     <div className="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700/60 relative overflow-hidden">

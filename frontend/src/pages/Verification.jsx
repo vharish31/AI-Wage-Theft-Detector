@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { detectWageTheft } from '../services/api';
+import { detectWageTheft, validateWorkDataAPI } from '../services/api';
 import ProcessFlowStepper from '../components/ProcessFlowStepper';
+import ValidationBanner from '../components/ValidationBanner';
 import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles } from 'lucide-react';
 
 export default function Verification({ workData, setAuditResult }) {
@@ -15,15 +16,50 @@ export default function Verification({ workData, setAuditResult }) {
   const [isChecking, setIsChecking] = useState(false);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
+  const [validationResult, setValidationResult] = useState(null);
+  const [showValidationWarning, setShowValidationWarning] = useState(false);
+
   const verificationSteps = [
     { title: 'Gazette Rate Lookup', desc: 'Fetching state minimum wage rules' },
     { title: 'Underpayment Audit', desc: 'Cross-auditing received payout' },
     { title: 'Risk Score Engine', desc: 'Computing severity risk score' }
   ];
 
+  // Run Validation Layer 3 checks when inputs change
+  useEffect(() => {
+    const checkValidation = async () => {
+      try {
+        const valRes = await validateWorkDataAPI({
+          job_type: jobType,
+          hours_worked: Number(hoursWorked),
+          location: location,
+          received_amount: Number(receivedAmount)
+        });
+
+        setValidationResult(valRes);
+
+        if (valRes.warning || valRes.error || (valRes.warnings && valRes.warnings.length > 0)) {
+          setShowValidationWarning(true);
+        } else {
+          setShowValidationWarning(false);
+        }
+      } catch (err) {
+        console.error('Validation error on verification:', err);
+      }
+    };
+
+    checkValidation();
+  }, [jobType, hoursWorked, location, receivedAmount]);
+
   const handleCheckWageTheft = async (e) => {
     e.preventDefault();
-    if (!receivedAmount || receivedAmount < 0) return;
+
+    // Block submission if there is a hard validation error and user hasn't cleared it
+    if (validationResult?.error && showValidationWarning) {
+      return;
+    }
+
+    if (!receivedAmount || Number(receivedAmount) < 0) return;
 
     setIsChecking(true);
     setActiveStepIndex(0);
@@ -150,6 +186,19 @@ export default function Verification({ workData, setAuditResult }) {
 
         </div>
 
+        {/* Validation Layer 3 Warning Banner */}
+        {showValidationWarning && validationResult && (
+          <ValidationBanner
+            warning={validationResult.warning}
+            error={validationResult.error}
+            hoursWorked={hoursWorked}
+            onContinueAnyway={() => setShowValidationWarning(false)}
+            onEditEntry={() => {
+              // User can focus on inputs
+            }}
+          />
+        )}
+
         {/* Main Payment Input */}
         <div className="bg-slate-900/80 p-6 rounded-2xl border border-cyan-500/30 space-y-3">
           <label className="block text-sm font-extrabold text-white flex items-center justify-between">
@@ -189,8 +238,12 @@ export default function Verification({ workData, setAuditResult }) {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isChecking || !receivedAmount}
-          className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-rose-500 via-red-600 to-amber-600 hover:from-rose-400 hover:to-red-500 text-white font-extrabold text-lg shadow-xl shadow-rose-500/20 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.01] active:scale-95"
+          disabled={isChecking || !receivedAmount || (validationResult?.error && showValidationWarning)}
+          className={`w-full py-4 px-6 rounded-xl font-extrabold text-lg shadow-xl flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.01] active:scale-95 ${
+            validationResult?.error && showValidationWarning
+              ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+              : 'bg-gradient-to-r from-rose-500 via-red-600 to-amber-600 hover:from-rose-400 hover:to-red-500 text-white shadow-rose-500/20'
+          }`}
         >
           {isChecking ? (
             <>

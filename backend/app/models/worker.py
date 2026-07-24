@@ -30,3 +30,18 @@ class WageDetectResponse(BaseModel):
     hourly_rate_expected: float
     hourly_rate_received: float
     legal_ref: Optional[str] = None
+
+class ValidateRequest(BaseModel):
+    job_type: Optional[str] = None
+    hours_worked: Optional[float] = None
+    location: Optional[str] = None
+    received_amount: Optional[float] = None
+    past_records: Optional[List[float]] = None
+
+class ValidateResponse(BaseModel):
+    is_valid: bool
+    warnings: List[str] = []
+    errors: List[str] = []
+    warning: Optional[str] = None
+    error: Optional[str] = None
+
