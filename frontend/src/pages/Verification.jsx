@@ -137,17 +137,21 @@ export default function Verification({ workData, setAuditResult }) {
               onChange={(e) => setJobType(e.target.value)}
               className="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-slate-100 text-sm font-semibold focus:ring-2 focus:ring-cyan-500"
             >
-              <option value="Freelancer">Freelancer / Independent Contractor</option>
               <option value="Construction Worker">Construction Worker</option>
-              <option value="Delivery Partner">Delivery Partner</option>
+              <option value="Mason">Mason</option>
+              <option value="Carpenter">Carpenter</option>
               <option value="Painter">Painter</option>
               <option value="Electrician">Electrician</option>
-              <option value="Security Guard">Security Guard</option>
+              <option value="Plumber">Plumber</option>
+              <option value="Driver">Driver</option>
+              <option value="Delivery Partner">Delivery Partner</option>
+              <option value="Farm Worker">Farm Worker</option>
               <option value="Domestic Worker">Domestic Worker</option>
-              <option value="Carpenter">Carpenter</option>
+              <option value="Welder">Welder</option>
+              <option value="Security Guard">Security Guard</option>
               <option value="Sanitation Worker">Sanitation Worker</option>
-              <option value="Mason">Mason</option>
               <option value="Factory Worker">Factory Worker</option>
+              <option value="Freelancer">Freelancer / Independent Contractor</option>
             </select>
           </div>
 

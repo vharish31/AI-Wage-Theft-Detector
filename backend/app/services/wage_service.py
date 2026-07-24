@@ -3,10 +3,23 @@ import os
 import logging
 from typing import Dict, Any, List
 from app.utils.helpers import map_location_to_state, compute_risk_level
+from app.utils.job_aliases import JOB_ALIASES
 
 logger = logging.getLogger(__name__)
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "wage_rates.json")
+
+def _normalize_job(job_name: str) -> str:
+    """Helper to normalize job alias."""
+    if not job_name:
+        return "Construction Worker"
+    cleaned = str(job_name).strip().lower()
+    if cleaned in JOB_ALIASES:
+        return JOB_ALIASES[cleaned]
+    for alias, canonical in JOB_ALIASES.items():
+        if alias in cleaned or cleaned in alias:
+            return canonical
+    return str(job_name).strip().title()
 
 def load_wage_rates() -> List[Dict[str, Any]]:
     """Loads wage rates dataset from data/wage_rates.json."""
@@ -54,7 +67,8 @@ def get_expected_wage(job_type: str, location: str) -> Dict[str, Any]:
     rates = load_wage_rates()
     state = map_location_to_state(location)
     
-    job_query = job_type.strip().lower()
+    normalized_title = _normalize_job(job_type)
+    job_query = normalized_title.lower()
     location_query = location.strip().lower()
     state_query = state.lower()
 

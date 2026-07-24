@@ -254,5 +254,41 @@
     "hourly_wage": 105.00,
     "category": "Skilled",
     "legal_act_ref": "West Bengal Minimum Wages Gazette"
+  },
+  {
+    "job": "Driver",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 880,
+    "hourly_wage": 110.00,
+    "category": "Skilled",
+    "legal_act_ref": "Tamil Nadu Motor Transport Workers Rules"
+  },
+  {
+    "job": "Farm Worker",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 620,
+    "hourly_wage": 77.50,
+    "category": "Unskilled",
+    "legal_act_ref": "Tamil Nadu Agricultural Workers Wages Act"
+  },
+  {
+    "job": "Welder",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 960,
+    "hourly_wage": 120.00,
+    "category": "Highly Skilled",
+    "legal_act_ref": "Tamil Nadu Engineering & Industrial Trades Gazette"
+  },
+  {
+    "job": "Plumber",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 910,
+    "hourly_wage": 113.75,
+    "category": "Skilled",
+    "legal_act_ref": "Tamil Nadu Minimum Wages Notification"
   }
 ]

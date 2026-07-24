@@ -45,3 +45,27 @@ class ValidateResponse(BaseModel):
     warning: Optional[str] = None
     error: Optional[str] = None
 
+class JobNormalizeRequest(BaseModel):
+    job_type: str = Field(..., example="kothanar")
+
+class JobNormalizeResponse(BaseModel):
+    raw_job_type: str
+    normalized_job_type: str
+    is_canonical: bool
+
+class JobCategoryPreviewRequest(BaseModel):
+    job_type: str = Field(..., example="Mason")
+    location: str = Field(..., example="Chennai")
+
+class JobCategoryPreviewResponse(BaseModel):
+    raw_job_type: str
+    job_type: str
+    location: str
+    state: str
+    category: str
+    wage_category: str
+    expected_daily_wage: float
+    expected_hourly_wage: float
+    legal_act_ref: str
+
+

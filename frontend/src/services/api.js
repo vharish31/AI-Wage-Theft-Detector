@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { normalizeJobType } from '../utils/jobAliases';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -9,6 +10,25 @@ export const apiClient = axios.create({
   },
   timeout: 15000,
 });
+
+/**
+ * Normalize job title or alias
+ * @param {string} job_type 
+ */
+export const normalizeJobAPI = async (job_type) => {
+  try {
+    const response = await apiClient.post('/normalize-job', { job_type });
+    return response.data;
+  } catch (error) {
+    console.warn('Backend job normalization offline, using local normalization:', error.message);
+    const normalized = normalizeJobType(job_type);
+    return {
+      raw_job_type: job_type,
+      normalized_job_type: normalized,
+      is_canonical: true
+    };
+  }
+};
 
 /**
  * Extract work details from speech transcript using AI

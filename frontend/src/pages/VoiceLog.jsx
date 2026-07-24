@@ -6,7 +6,11 @@ import TranscriptReview from '../components/TranscriptReview';
 import StructuredDataReview from '../components/StructuredDataReview';
 import ValidationBanner from '../components/ValidationBanner';
 import WageCard from '../components/WageCard';
-import { extractSpeechData, validateWorkDataAPI } from '../services/api';
+import JobTypeReview from '../components/JobTypeReview';
+import JobTypeSelector from '../components/JobTypeSelector';
+import JobCategoryPreview from '../components/JobCategoryPreview';
+import { extractSpeechData, validateWorkDataAPI, normalizeJobAPI } from '../services/api';
+import { normalizeJobType } from '../utils/jobAliases';
 import { Sparkles, ArrowRight, CheckCircle2, RefreshCw, ShieldCheck } from 'lucide-react';
 
 export default function VoiceLog({ workData, setWorkData }) {
@@ -18,6 +22,9 @@ export default function VoiceLog({ workData, setWorkData }) {
   const [validationResult, setValidationResult] = useState(null);
   const [showValidationWarning, setShowValidationWarning] = useState(false);
 
+  // Job Type Validation Layer state: 'review' | 'selector' | 'preview' | 'complete'
+  const [jobValidationStep, setJobValidationStep] = useState('review');
+
   const navigate = useNavigate();
 
   const extractionSteps = [
@@ -26,60 +33,61 @@ export default function VoiceLog({ workData, setWorkData }) {
     { title: 'Structuring Record', desc: 'Formatting verification metrics' }
   ];
 
-  // Sample past work records for historical anomaly detection testing
   const pastWorkRecords = [8, 9, 8, 7.5, 8];
 
-  // Validation Layer 1: Voice recording produces raw transcript for review
   const handleRawTranscriptCaptured = (transcriptText) => {
     setRawTranscript(transcriptText);
     setConfirmedTranscript(null);
     setExtractedData(null);
     setValidationResult(null);
     setShowValidationWarning(false);
+    setJobValidationStep('review');
   };
 
-  // Validation Layer 1 Confirmation: User confirms/edits transcript text
   const handleConfirmTranscript = async (finalTranscript) => {
     setConfirmedTranscript(finalTranscript);
     setIsExtracting(true);
     setActiveStepIndex(0);
 
-    // Step 1: Voice Analysis
     await new Promise((r) => setTimeout(r, 400));
     setActiveStepIndex(1);
 
     try {
-      // Step 2: Gemini AI Extraction
       const data = await extractSpeechData(finalTranscript);
 
-      // Step 3: Structuring Record
       await new Promise((r) => setTimeout(r, 500));
       setActiveStepIndex(2);
 
       await new Promise((r) => setTimeout(r, 300));
 
-      setExtractedData(data);
-      setWorkData(data);
+      // Standardize extracted job title via Alias Dictionary
+      const normalizedJob = normalizeJobType(data.job_type);
+      const structuredData = {
+        ...data,
+        job_type: normalizedJob
+      };
 
-      // Run Validation Layer 3 check on extracted data
-      await runValidationCheck(data);
+      setExtractedData(structuredData);
+      setWorkData(structuredData);
+      setJobValidationStep('review');
+
+      await runValidationCheck(structuredData);
     } catch (err) {
       console.error('Error extracting speech:', err);
-    } fontally: {
+    } finally {
       setIsExtracting(false);
     }
   };
 
-  // Reset/Re-record Audio
   const handleReRecord = () => {
     setRawTranscript(null);
     setConfirmedTranscript(null);
     setExtractedData(null);
     setValidationResult(null);
     setShowValidationWarning(false);
+    setJobValidationStep('review');
   };
 
-  // Validation Layer 3: Anomaly check
   const runValidationCheck = async (dataToValidate) => {
     try {
       const valRes = await validateWorkDataAPI({
@@ -101,7 +109,27 @@ export default function VoiceLog({ workData, setWorkData }) {
     }
   };
 
-  // Validation Layer 2 Confirmation & Inline Edits
+  // Job Type Validation Layer Handlers
+  const handleConfirmJobTypeReview = (confirmedJob) => {
+    const updated = { ...extractedData, job_type: normalizeJobType(confirmedJob) };
+    setExtractedData(updated);
+    setWorkData(updated);
+    setJobValidationStep('preview');
+  };
+
+  const handleSelectJobTypeFromDropdown = (selectedJob) => {
+    const normalized = normalizeJobType(selectedJob);
+    const updated = { ...extractedData, job_type: normalized };
+    setExtractedData(updated);
+    setWorkData(updated);
+    setJobValidationStep('preview');
+  };
+
+  const handleConfirmCategoryPreview = () => {
+    setJobValidationStep('complete');
+    runValidationCheck(extractedData);
+  };
+
   const handleStructuredDataConfirmed = (updatedData) => {
     setExtractedData(updatedData);
     setWorkData(updatedData);
@@ -127,6 +155,7 @@ export default function VoiceLog({ workData, setWorkData }) {
     setWorkData(null);
     setValidationResult(null);
     setShowValidationWarning(false);
+    setJobValidationStep('review');
   };
 
   return (
@@ -136,17 +165,17 @@ export default function VoiceLog({ workData, setWorkData }) {
       <div className="space-y-2 text-center sm:text-left">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold">
           <ShieldCheck className="w-4 h-4 text-cyan-400" />
-          VOICE RECOGNITION ERROR PREVENTION SYSTEM
+          HUMAN-IN-THE-LOOP JOB TYPE VALIDATION & ERROR PREVENTION SYSTEM
         </div>
         <h1 className="text-3xl font-extrabold text-white tracking-tight">
           Record & Validate Work Details
         </h1>
         <p className="text-slate-400 text-sm max-w-2xl">
-          Speak your shift details naturally. Our multi-layer validation engine verifies transcripts, extracts metrics with Gemini AI, and detects duration anomalies before wage analysis.
+          Speak your shift details naturally. Our multi-layer validation engine standardizes vernacular job aliases, verifies AI confidence, and previews statutory wage categories before analysis.
         </p>
       </div>
 
-      {/* 1. Voice Recorder (Captured initial voice input) */}
+      {/* 1. Voice Recorder */}
       {!rawTranscript && (
         <VoiceRecorder
           onTranscriptComplete={handleRawTranscriptCaptured}
@@ -154,7 +183,7 @@ export default function VoiceLog({ workData, setWorkData }) {
         />
       )}
 
-      {/* 2. Validation Layer 1: Transcript Confirmation Screen */}
+      {/* 2. Validation Layer 1: Transcript Review Screen */}
       {rawTranscript && !confirmedTranscript && !isExtracting && (
         <TranscriptReview
           transcript={rawTranscript}
@@ -166,14 +195,14 @@ export default function VoiceLog({ workData, setWorkData }) {
       {/* Live Process Stepper */}
       {isExtracting && (
         <ProcessFlowStepper
-          title="AI Extraction & Validation Process Flow"
+          title="AI Extraction & Job Type Normalization Flow"
           steps={extractionSteps}
           activeStepIndex={activeStepIndex}
           isProcessing={isExtracting}
         />
       )}
 
-      {/* 3. Validation Layer 2 & Layer 3 Results */}
+      {/* 3. Job Type Validation & Standardization Layer */}
       {extractedData && !isExtracting && (
         <div className="space-y-6 animate-fade-in">
           
@@ -190,48 +219,84 @@ export default function VoiceLog({ workData, setWorkData }) {
             </button>
           </div>
 
-          {/* Validation Layer 3: Warning / Anomaly Banner */}
-          {showValidationWarning && validationResult && (
-            <ValidationBanner
-              warning={validationResult.warning}
-              error={validationResult.error}
-              hoursWorked={extractedData.hours_worked}
-              onContinueAnyway={() => setShowValidationWarning(false)}
-              onEditEntry={() => {
-                // Focus user on editing structured data
-              }}
+          {/* Validation Layer 1 & 4: Job Type Review Screen */}
+          {jobValidationStep === 'review' && (
+            <JobTypeReview
+              data={extractedData}
+              confidence={extractedData.confidence}
+              onConfirm={handleConfirmJobTypeReview}
+              onEdit={() => setJobValidationStep('selector')}
             />
           )}
 
-          {/* Validation Layer 2: Structured Data Confirmation Review Card */}
-          <StructuredDataReview
-            data={extractedData}
-            onConfirm={handleStructuredDataConfirmed}
-            onEdit={handleStructuredDataEdited}
-          />
+          {/* Validation Layer 2: Manual Job Selector */}
+          {jobValidationStep === 'selector' && (
+            <JobTypeSelector
+              selectedJobType={extractedData.job_type}
+              onSelectJobType={handleSelectJobTypeFromDropdown}
+              onCancel={() => setJobValidationStep('review')}
+            />
+          )}
 
-          {/* Standard Wage Card Display */}
-          <WageCard
-            jobType={extractedData.job_type}
-            hoursWorked={extractedData.hours_worked}
-            location={extractedData.location}
-          />
+          {/* Validation Layer 5: Wage Category Preview */}
+          {jobValidationStep === 'preview' && (
+            <JobCategoryPreview
+              jobType={extractedData.job_type}
+              location={extractedData.location}
+              onContinue={handleConfirmCategoryPreview}
+              onChangeJobType={() => setJobValidationStep('selector')}
+            />
+          )}
 
-          {/* Proceed CTA Button */}
-          <div className="pt-4 flex justify-end">
-            <button
-              onClick={handleProceed}
-              disabled={validationResult?.error && showValidationWarning}
-              className={`w-full sm:w-auto px-8 py-4 rounded-xl font-extrabold text-base shadow-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 ${
-                validationResult?.error && showValidationWarning
-                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                  : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-500/20'
-              }`}
-            >
-              Proceed to Payment Verification
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
+          {/* Final Step: Confirmed Metrics Review Card & Proceed */}
+          {jobValidationStep === 'complete' && (
+            <>
+              {showValidationWarning && validationResult && (
+                <ValidationBanner
+                  warning={validationResult.warning}
+                  error={validationResult.error}
+                  hoursWorked={extractedData.hours_worked}
+                  onContinueAnyway={() => setShowValidationWarning(false)}
+                  onEditEntry={() => setJobValidationStep('selector')}
+                />
+              )}
+
+              <StructuredDataReview
+                data={extractedData}
+                onConfirm={handleStructuredDataConfirmed}
+                onEdit={handleStructuredDataEdited}
+              />
+
+              <WageCard
+                jobType={extractedData.job_type}
+                hoursWorked={extractedData.hours_worked}
+                location={extractedData.location}
+              />
+
+              <div className="pt-4 flex flex-wrap items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={() => setJobValidationStep('selector')}
+                  className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-sm flex items-center gap-2"
+                >
+                  Modify Job Type
+                </button>
+
+                <button
+                  onClick={handleProceed}
+                  disabled={validationResult?.error && showValidationWarning}
+                  className={`w-full sm:w-auto px-8 py-4 rounded-xl font-extrabold text-base shadow-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 ${
+                    validationResult?.error && showValidationWarning
+                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-500/20'
+                  }`}
+                >
+                  Proceed to Payment Verification
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </>
+          )}
 
         </div>
       )}
@@ -239,3 +304,4 @@ export default function VoiceLog({ workData, setWorkData }) {
     </div>
   );
 }
+
