@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Briefcase, Clock, MapPin, CheckCircle, Edit3, Save, X, Sparkles } from 'lucide-react';
+import ModernNumberInput from './ModernNumberInput';
 
 export default function StructuredDataReview({ data, onConfirm, onEdit }) {
   const [jobType, setJobType] = useState(data?.job_type || 'Construction Worker');
@@ -156,14 +157,13 @@ export default function StructuredDataReview({ data, onConfirm, onEdit }) {
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Hours Worked
               </label>
-              <input
-                type="number"
-                step="0.5"
-                min="0.5"
-                max="24"
+              <ModernNumberInput
                 value={hoursWorked}
-                onChange={(e) => setHoursWorked(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-100 text-sm font-semibold focus:ring-2 focus:ring-cyan-500"
+                onChange={setHoursWorked}
+                min={0.5}
+                max={24}
+                step={0.5}
+                suffix="hrs"
               />
             </div>
 

@@ -23,14 +23,14 @@ def extract_work_details_gemini(transcript: str) -> dict:
     You are an AI assistant specialized in analyzing labor work transcripts from gig, construction, and informal workers.
     Extract the following information from the user transcript:
     1. job_type (e.g. Construction Worker, Delivery Partner, Painter, Electrician, Security Guard, Domestic Worker, etc.)
-    2. hours_worked (number, default to 8 if not specified)
-    3. location (city or state in India, e.g. Chennai, Mumbai, Bengaluru, Delhi, Kolkata)
+    2. hours_worked (number, set to null if not explicitly mentioned in the transcript)
+    3. location (city or state in India, set to null if not explicitly mentioned in the transcript)
 
     Return ONLY a raw JSON object with exactly these keys:
     {{
-      "job_type": "string",
-      "hours_worked": number,
-      "location": "string"
+      "job_type": "string or null",
+      "hours_worked": number or null,
+      "location": "string or null"
     }}
 
     Transcript: "{transcript}"

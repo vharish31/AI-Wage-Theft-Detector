@@ -3,8 +3,8 @@ import { Briefcase, Clock, MapPin, CheckCircle, Edit3, AlertTriangle, ShieldChec
 
 export default function JobTypeReview({ data, confidence, onConfirm, onEdit }) {
   const jobType = data?.job_type || 'Construction Worker';
-  const hoursWorked = data?.hours_worked ?? 8;
-  const location = data?.location || 'Chennai';
+  const hoursWorked = data?.hours_worked && Number(data.hours_worked) > 0 ? `${data.hours_worked} hrs` : 'Not Specified';
+  const location = data?.location || 'Not Specified';
 
   // Check if confidence score is low (< 80% or < 0.8)
   const numericConfidence = typeof confidence === 'number' ? (confidence > 1 ? confidence / 100 : confidence) : null;
@@ -74,7 +74,7 @@ export default function JobTypeReview({ data, confidence, onConfirm, onEdit }) {
             <span>Hours</span>
           </div>
           <p className="text-lg font-black text-white">
-            {hoursWorked} <span className="text-sm font-semibold text-slate-400">hrs</span>
+            {hoursWorked}
           </p>
         </div>
 

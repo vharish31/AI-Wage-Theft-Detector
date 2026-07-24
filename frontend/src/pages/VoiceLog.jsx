@@ -12,10 +12,11 @@ import JobCategoryPreview from '../components/JobCategoryPreview';
 import LocationDetector from '../components/LocationDetector';
 import LocationSelector from '../components/LocationSelector';
 import LocationReview from '../components/LocationReview';
+import HoursSelector from '../components/HoursSelector';
 import { extractSpeechData, validateWorkDataAPI, normalizeJobAPI, validateLocationAPI } from '../services/api';
 import { normalizeJobType } from '../utils/jobAliases';
 import { resolveLocationState } from '../utils/locationHelper';
-import { Sparkles, ArrowRight, CheckCircle2, RefreshCw, ShieldCheck, MapPin } from 'lucide-react';
+import { Sparkles, ArrowRight, CheckCircle2, RefreshCw, ShieldCheck, MapPin, Clock } from 'lucide-react';
 
 export default function VoiceLog({ workData, setWorkData }) {
   const [rawTranscript, setRawTranscript] = useState(null);
@@ -31,6 +32,9 @@ export default function VoiceLog({ workData, setWorkData }) {
 
   // Location Validation Layer state: 'check' | 'detector' | 'selector' | 'review' | 'confirmed'
   const [locationStep, setLocationStep] = useState('check');
+
+  // Work Hours Resolution state: 'check' | 'selector' | 'confirmed'
+  const [hoursStep, setHoursStep] = useState('check');
 
   const navigate = useNavigate();
 
@@ -50,6 +54,7 @@ export default function VoiceLog({ workData, setWorkData }) {
     setShowValidationWarning(false);
     setJobValidationStep('review');
     setLocationStep('check');
+    setHoursStep('check');
   };
 
   const handleConfirmTranscript = async (finalTranscript) => {
@@ -68,27 +73,35 @@ export default function VoiceLog({ workData, setWorkData }) {
 
       await new Promise((r) => setTimeout(r, 300));
 
-      // Standardize extracted job title via Alias Dictionary
       const normalizedJob = normalizeJobType(data.job_type);
       const loc = data.location && String(data.location).trim() && String(data.location).toLowerCase() !== 'unknown'
         ? String(data.location).trim()
         : '';
+      const hrs = data.hours_worked && Number(data.hours_worked) > 0 ? Number(data.hours_worked) : null;
 
       const structuredData = {
         ...data,
         job_type: normalizedJob,
-        location: loc
+        location: loc,
+        hours_worked: hrs
       };
 
       setExtractedData(structuredData);
       setWorkData(structuredData);
       setJobValidationStep('review');
 
-      // Layer 1 Location Check: Trigger Location Resolution Flow if location missing
+      // Check Location
       if (!loc) {
         setLocationStep('detector');
       } else {
         setLocationStep('review');
+      }
+
+      // Check Hours
+      if (!hrs) {
+        setHoursStep('selector');
+      } else {
+        setHoursStep('confirmed');
       }
 
       await runValidationCheck(structuredData);
@@ -162,6 +175,17 @@ export default function VoiceLog({ workData, setWorkData }) {
     setExtractedData(updated);
     setWorkData(updated);
     setLocationStep('confirmed');
+  };
+
+  const handleHoursSelected = (confirmedHours) => {
+    const updated = {
+      ...extractedData,
+      hours_worked: confirmedHours
+    };
+    setExtractedData(updated);
+    setWorkData(updated);
+    setHoursStep('confirmed');
+    runValidationCheck(updated);
   };
 
   // Job Type Validation Layer Handlers
@@ -294,6 +318,33 @@ export default function VoiceLog({ workData, setWorkData }) {
             </div>
           )}
 
+          {/* Validation Layer Warning if Hours Missing */}
+          {(!extractedData.hours_worked || hoursStep === 'selector') && (
+            <div className="bg-amber-950/80 border border-amber-500/50 rounded-xl p-4 flex items-center justify-between text-amber-200">
+              <div className="flex items-center gap-2 text-sm font-bold">
+                <Clock className="w-5 h-5 text-cyan-400" />
+                <span>⚠ Work shift duration required for accurate wage calculation.</span>
+              </div>
+              {hoursStep !== 'selector' && (
+                <button
+                  type="button"
+                  onClick={() => setHoursStep('selector')}
+                  className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold"
+                >
+                  Specify Hours
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Hours Duration Resolution Selector */}
+          {(!extractedData.hours_worked || hoursStep === 'selector') && (
+            <HoursSelector
+              initialHours={extractedData.hours_worked}
+              onHoursSelected={handleHoursSelected}
+            />
+          )}
+
           {/* Layer 2: GPS Location Detector */}
           {locationStep === 'detector' && (
             <LocationDetector
@@ -399,9 +450,9 @@ export default function VoiceLog({ workData, setWorkData }) {
 
                     <button
                       onClick={handleProceed}
-                      disabled={!extractedData.location || (validationResult?.error && showValidationWarning)}
+                      disabled={!extractedData.location || !extractedData.hours_worked || (validationResult?.error && showValidationWarning)}
                       className={`w-full sm:w-auto px-8 py-4 rounded-xl font-extrabold text-base shadow-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 ${
-                        !extractedData.location || (validationResult?.error && showValidationWarning)
+                        !extractedData.location || !extractedData.hours_worked || (validationResult?.error && showValidationWarning)
                           ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                           : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-500/20'
                       }`}

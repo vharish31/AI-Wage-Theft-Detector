@@ -3,21 +3,43 @@ import { useNavigate } from 'react-router-dom';
 import { detectWageTheft, validateWorkDataAPI } from '../services/api';
 import ProcessFlowStepper from '../components/ProcessFlowStepper';
 import ValidationBanner from '../components/ValidationBanner';
+import ModernNumberInput from '../components/ModernNumberInput';
+import { resolveLocationState } from '../utils/locationHelper';
 import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles } from 'lucide-react';
 
 export default function Verification({ workData, setAuditResult }) {
   const navigate = useNavigate();
 
-  const [jobType, setJobType] = useState(workData?.job_type || 'Construction Worker');
-  const [hoursWorked, setHoursWorked] = useState(workData?.hours_worked || 8);
+  const [jobType, setJobType] = useState(workData?.job_type || 'Painter');
+  const [hoursWorked, setHoursWorked] = useState(workData?.hours_worked ?? 8);
   const [location, setLocation] = useState(workData?.location || 'Chennai');
-  const [receivedAmount, setReceivedAmount] = useState(600);
-  const [workerName, setWorkerName] = useState('Worker');
+  const [receivedAmount, setReceivedAmount] = useState(workData?.received_amount || '');
+  const [workerName, setWorkerName] = useState(workData?.worker_name || '');
   const [isChecking, setIsChecking] = useState(false);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
   const [validationResult, setValidationResult] = useState(null);
   const [showValidationWarning, setShowValidationWarning] = useState(false);
+
+  // Sync workData into form state whenever workData prop updates
+  useEffect(() => {
+    if (workData) {
+      if (workData.job_type) setJobType(workData.job_type);
+      if (workData.hours_worked) setHoursWorked(workData.hours_worked);
+      if (workData.location) setLocation(workData.location);
+      if (workData.worker_name) setWorkerName(workData.worker_name);
+    }
+  }, [workData]);
+
+  const defaultCities = [
+    'Chennai', 'Mumbai', 'Bengaluru', 'Mangalore', 'Delhi', 'Kolkata', 'Hyderabad',
+    'Coimbatore', 'Madurai', 'Trichy', 'Salem', 'Kochi', 'Thiruvananthapuram', 'Visakhapatnam', 'Pune', 'Ahmedabad'
+  ];
+
+  // Dynamic location list ensuring workData.location is always included
+  const locationList = defaultCities.includes(location)
+    ? defaultCities
+    : [location, ...defaultCities.filter(c => c !== location)];
 
   const verificationSteps = [
     { title: 'Gazette Rate Lookup', desc: 'Fetching state minimum wage rules' },
@@ -159,14 +181,13 @@ export default function Verification({ workData, setAuditResult }) {
             <label className="block text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-cyan-400" /> Hours Worked
             </label>
-            <input
-              type="number"
-              step="0.5"
-              min="1"
-              max="24"
+            <ModernNumberInput
               value={hoursWorked}
-              onChange={(e) => setHoursWorked(e.target.value)}
-              className="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-slate-100 text-sm font-semibold focus:ring-2 focus:ring-cyan-500"
+              onChange={setHoursWorked}
+              min={1}
+              max={24}
+              step={0.5}
+              suffix="hrs"
             />
           </div>
 
@@ -179,12 +200,11 @@ export default function Verification({ workData, setAuditResult }) {
               onChange={(e) => setLocation(e.target.value)}
               className="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-slate-100 text-sm font-semibold focus:ring-2 focus:ring-cyan-500"
             >
-              <option value="Chennai">Chennai (Tamil Nadu)</option>
-              <option value="Mumbai">Mumbai (Maharashtra)</option>
-              <option value="Bengaluru">Bengaluru (Karnataka)</option>
-              <option value="Delhi">Delhi (NCT)</option>
-              <option value="Kolkata">Kolkata (West Bengal)</option>
-              <option value="Hyderabad">Hyderabad (Telangana)</option>
+              {locationList.map((locName) => (
+                <option key={locName} value={locName}>
+                  {locName} ({resolveLocationState(locName)})
+                </option>
+              ))}
             </select>
           </div>
 
@@ -220,7 +240,6 @@ export default function Verification({ workData, setAuditResult }) {
               required
               value={receivedAmount}
               onChange={(e) => setReceivedAmount(e.target.value)}
-              placeholder="e.g. 600"
               className="w-full pl-12 pr-4 py-4 bg-slate-950 border border-slate-700 focus:border-cyan-500 rounded-xl text-2xl font-black text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
             />
           </div>

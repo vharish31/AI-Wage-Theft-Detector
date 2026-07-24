@@ -190,6 +190,42 @@
     "category": "Semi-skilled",
     "legal_act_ref": "Karnataka Security Guard Wage Schedule"
   },
+  {
+    "job": "Painter",
+    "state": "Karnataka",
+    "city": "Mangalore",
+    "daily_wage": 940,
+    "hourly_wage": 117.50,
+    "category": "Skilled",
+    "legal_act_ref": "Karnataka Minimum Wages Rules - Zone 2"
+  },
+  {
+    "job": "Construction Worker",
+    "state": "Karnataka",
+    "city": "Mangalore",
+    "daily_wage": 880,
+    "hourly_wage": 110.00,
+    "category": "Unskilled / Semi-skilled",
+    "legal_act_ref": "Karnataka Building & Construction Wage Gazette"
+  },
+  {
+    "job": "Electrician",
+    "state": "Karnataka",
+    "city": "Mangalore",
+    "daily_wage": 1000,
+    "hourly_wage": 125.00,
+    "category": "Highly Skilled",
+    "legal_act_ref": "Karnataka Trades Gazette - Zone 2"
+  },
+  {
+    "job": "Mason",
+    "state": "Karnataka",
+    "city": "Mangalore",
+    "daily_wage": 960,
+    "hourly_wage": 120.00,
+    "category": "Skilled",
+    "legal_act_ref": "Karnataka Construction Workers Board"
+  },
 
   {
     "job": "Construction Worker",

@@ -59,12 +59,12 @@ export const validateWorkData = ({
   }
 
   // Rule 3: Received amount check
-  if (received_amount !== undefined && received_amount !== null && received_amount !== '') {
+  if (received_amount !== undefined && received_amount !== null && String(received_amount).trim() !== '') {
     const amt = Number(received_amount);
     if (isNaN(amt)) {
       errors.push('Invalid received amount format');
-    } else if (amt <= 0) {
-      warnings.push('Received amount must be greater than zero');
+    } else if (amt < 0) {
+      errors.push('Received amount cannot be negative');
     }
   }
 

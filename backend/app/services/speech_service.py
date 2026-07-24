@@ -29,12 +29,17 @@ JOB_KEYWORDS = {
 }
 
 KNOWN_CITIES = [
-    "Chennai", "Mumbai", "Bengaluru", "Bangalore", "Delhi", "New Delhi",
-    "Kolkata", "Hyderabad", "Pune", "Coimbatore", "Madurai", "Ahmedabad", "Jaipur", "Lucknow"
+    "Chennai", "Mumbai", "Bengaluru", "Bangalore", "Mangalore", "Mangaluru", "Mysore", "Mysuru",
+    "Delhi", "New Delhi", "Kolkata", "Hyderabad", "Pune", "Coimbatore", "Madurai", "Salem",
+    "Trichy", "Tiruchirappalli", "Vellore", "Erode", "Tirunelveli", "Thanjavur", "Kochi",
+    "Thiruvananthapuram", "Trivandrum", "Visakhapatnam", "Vijayawada", "Ahmedabad", "Surat",
+    "Jaipur", "Lucknow", "Kanpur", "Noida", "Gurugram", "Ghaziabad", "Thane", "Nagpur", "Nashik"
 ]
 
-def extract_hours_from_text(text: str) -> float:
-    """Extracts numeric or word hours (e.g. '5 hours', '5 hrs', '5 hour', '1 hr') from transcript."""
+from typing import Optional
+
+def extract_hours_from_text(text: str) -> Optional[float]:
+    """Extracts numeric or word hours from transcript. Returns None if hours are not specified."""
     text_lower = text.lower()
 
     # 1. Direct digit match: "5 hours", "5.5 hours", "5 hrs", "5 hr", "1 hr"
@@ -74,19 +79,17 @@ def extract_hours_from_text(text: str) -> float:
         except ValueError:
             pass
 
-    return 8.0  # Default fallback if no hours specified at all
+    return None  # No hours specified in transcript
 
 def extract_job_type_from_text(text: str) -> str:
     """Extracts job type using keyword dictionaries and dynamic pattern matching."""
     text_lower = text.lower()
 
-    # 1. Check keyword dictionary first for exact role matches (e.g. electrician, painter, plumber, etc.)
     for canonical_job, keywords in JOB_KEYWORDS.items():
         for kw in keywords:
             if re.search(r'\b' + re.escape(kw) + r'\b', text_lower):
                 return canonical_job.title()
 
-    # 2. Dynamic pattern matching: "i am a freelancer", "worked as a painter", "work as electrician"
     pattern_match = re.search(r'(?:i am an?|i\'m an?|worked as an?|job as an?|work as an?|working as an?)\s+([a-zA-Z\s]+?)(?:,|\.|\bfor\b|\bmy\b|\bin\b|\bwant\b|\bhours?\b|\bworked\b|$)', text_lower)
     if pattern_match:
         extracted_role = pattern_match.group(1).strip()
@@ -95,22 +98,23 @@ def extract_job_type_from_text(text: str) -> str:
 
     return "Worker"
 
+def extract_location_from_text(text: str) -> Optional[str]:
+    """Extracts city from transcript text. Returns None if location is not mentioned."""
+    for city in KNOWN_CITIES:
+        if city.lower() in text.lower():
+            if city == "Bangalore":
+                return "Bengaluru"
+            return city
+    return None
+
 def fallback_speech_extraction(transcript: str) -> dict:
     """Intelligent regex-based heuristic extractor if Gemini API is unavailable."""
     text = transcript.strip()
     
     hours = extract_hours_from_text(text)
     job_type = extract_job_type_from_text(text)
+    location = extract_location_from_text(text)
 
-    # Extract Location
-    location = "Chennai"
-    for city in KNOWN_CITIES:
-        if city.lower() in text.lower():
-            location = city
-            if location == "Bangalore":
-                location = "Bengaluru"
-            break
-            
     return {
         "job_type": job_type,
         "hours_worked": hours,
@@ -123,21 +127,19 @@ def process_speech_transcript(transcript: str) -> dict:
     if not transcript or not transcript.strip():
         return {
             "job_type": "Worker",
-            "hours_worked": 8.0,
-            "location": "Chennai",
+            "hours_worked": None,
+            "location": None,
             "confidence": 0.50,
             "raw_transcript": transcript
         }
 
-    # Attempt Gemini API extraction
     gemini_result = extract_work_details_gemini(transcript)
     if gemini_result and isinstance(gemini_result, dict):
         job = gemini_result.get("job_type")
         hours = gemini_result.get("hours_worked")
         loc = gemini_result.get("location")
         
-        # Verify valid values from Gemini
-        if job and str(job).strip() and str(job).strip().lower() != "construction worker":
+        if job and str(job).strip() and str(job).strip().lower() not in ["construction worker", "none", "null"]:
             final_job = str(job).strip().title()
         else:
             final_job = extract_job_type_from_text(transcript)
@@ -147,7 +149,7 @@ def process_speech_transcript(transcript: str) -> dict:
         except (ValueError, TypeError):
             final_hours = extract_hours_from_text(transcript)
 
-        final_loc = str(loc).strip().title() if loc else "Chennai"
+        final_loc = str(loc).strip().title() if loc and str(loc).strip().lower() not in ["none", "null", "unknown"] else extract_location_from_text(transcript)
 
         return {
             "job_type": final_job,
@@ -157,7 +159,6 @@ def process_speech_transcript(transcript: str) -> dict:
             "raw_transcript": transcript
         }
 
-    # Fallback to local heuristic extraction
     fallback_res = fallback_speech_extraction(transcript)
     fallback_res["raw_transcript"] = transcript
     return fallback_res

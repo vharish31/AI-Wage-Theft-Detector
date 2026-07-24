@@ -84,7 +84,7 @@ export const extractSpeechData = async (transcript) => {
     }
 
     // 2. Hours Worked Extraction
-    let hours_worked = 8;
+    let hours_worked = null;
     const digitMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:hours|hrs|hr|hour)\b/);
     const wordHourMatch = text.match(/\b(?:one|i|a|an)\s+(?:hour|hr|hrs|hours)\b/);
     const workedNumMatch = text.match(/(?:worked|shift|for)\s+(?:for\s+)?(\d+(?:\.\d+)?)/);
@@ -98,12 +98,13 @@ export const extractSpeechData = async (transcript) => {
     }
 
     // 3. Location Extraction
-    let location = 'Chennai';
+    let location = '';
     if (text.includes('mumbai')) location = 'Mumbai';
     else if (text.includes('bengaluru') || text.includes('bangalore')) location = 'Bengaluru';
     else if (text.includes('delhi')) location = 'Delhi';
     else if (text.includes('kolkata')) location = 'Kolkata';
     else if (text.includes('hyderabad')) location = 'Hyderabad';
+    else if (text.includes('chennai') || text.includes('madras')) location = 'Chennai';
 
     return {
       job_type,

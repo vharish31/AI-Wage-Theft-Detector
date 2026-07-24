@@ -1,8 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Mic, AlertTriangle, FileText, ArrowRight, Scale, CheckCircle, Sparkles } from 'lucide-react';
 
-export default function Home() {
+export default function Home({ onStartDetection }) {
+  const navigate = useNavigate();
+
+  const handleStart = () => {
+    if (onStartDetection) {
+      onStartDetection();
+    }
+    navigate('/voice-log');
+  };
+
   return (
     <div className="space-y-16 py-6 sm:py-10">
       
@@ -37,14 +46,15 @@ export default function Home() {
 
           {/* CTA Button */}
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/voice-log"
+            <button
+              type="button"
+              onClick={handleStart}
               className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-lg shadow-xl shadow-cyan-500/25 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-95"
             >
               <Mic className="w-6 h-6 animate-pulse" />
               Start Detection
               <ArrowRight className="w-5 h-5" />
-            </Link>
+            </button>
           </div>
 
         </div>
@@ -106,13 +116,14 @@ export default function Home() {
         </div>
 
         <div className="text-center pt-4">
-          <Link
-            to="/voice-log"
+          <button
+            type="button"
+            onClick={handleStart}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold text-sm border border-cyan-500/30 transition-all"
           >
             Launch Voice Logger Now
             <ArrowRight className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
       </section>
 

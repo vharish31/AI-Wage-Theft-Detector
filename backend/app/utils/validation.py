@@ -66,11 +66,11 @@ def validate_work_data(
             errors.append("Invalid work duration format")
 
     # Rule 3: Received amount check
-    if received_amount is not None:
+    if received_amount is not None and str(received_amount).strip() != "":
         try:
             amt = float(received_amount)
-            if amt <= 0:
-                warnings.append("Received amount must be greater than zero")
+            if amt < 0:
+                errors.append("Received amount cannot be negative")
         except (ValueError, TypeError):
             errors.append("Invalid received amount format")
 
