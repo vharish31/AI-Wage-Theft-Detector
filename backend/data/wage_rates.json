@@ -1,0 +1,258 @@
+[
+  {
+    "job": "Construction Worker",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 850,
+    "hourly_wage": 106.25,
+    "category": "Unskilled / Semi-skilled",
+    "legal_act_ref": "Tamil Nadu Minimum Wages Act - Building and Construction"
+  },
+  {
+    "job": "Delivery Partner",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 700,
+    "hourly_wage": 87.50,
+    "category": "Gig Worker / Semi-skilled",
+    "legal_act_ref": "Tamil Nadu Shops and Establishments Act"
+  },
+  {
+    "job": "Painter",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 900,
+    "hourly_wage": 112.50,
+    "category": "Skilled",
+    "legal_act_ref": "Tamil Nadu Minimum Wages Act"
+  },
+  {
+    "job": "Electrician",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 950,
+    "hourly_wage": 118.75,
+    "category": "Highly Skilled",
+    "legal_act_ref": "Tamil Nadu Electrical Trades Wage Revision"
+  },
+  {
+    "job": "Security Guard",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 750,
+    "hourly_wage": 93.75,
+    "category": "Semi-skilled",
+    "legal_act_ref": "Tamil Nadu Private Security Agencies Rules"
+  },
+  {
+    "job": "Domestic Worker",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 650,
+    "hourly_wage": 81.25,
+    "category": "Unskilled",
+    "legal_act_ref": "Tamil Nadu Unorganized Workers Act"
+  },
+  {
+    "job": "Carpenter",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 920,
+    "hourly_wage": 115.00,
+    "category": "Skilled",
+    "legal_act_ref": "Tamil Nadu Minimum Wages Act"
+  },
+  {
+    "job": "Sanitation Worker",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 720,
+    "hourly_wage": 90.00,
+    "category": "Unskilled",
+    "legal_act_ref": "Municipal Corporation Minimum Wage Standards"
+  },
+  {
+    "job": "Mason",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 950,
+    "hourly_wage": 118.75,
+    "category": "Skilled",
+    "legal_act_ref": "Building and Other Construction Workers Act"
+  },
+  {
+    "job": "Factory Worker",
+    "state": "Tamil Nadu",
+    "city": "Chennai",
+    "daily_wage": 780,
+    "hourly_wage": 97.50,
+    "category": "Semi-skilled",
+    "legal_act_ref": "Factories Act Minimum Wage Notification"
+  },
+
+  {
+    "job": "Construction Worker",
+    "state": "Maharashtra",
+    "city": "Mumbai",
+    "daily_wage": 920,
+    "hourly_wage": 115.00,
+    "category": "Unskilled / Semi-skilled",
+    "legal_act_ref": "Maharashtra Minimum Wages Rules - Zone 1"
+  },
+  {
+    "job": "Delivery Partner",
+    "state": "Maharashtra",
+    "city": "Mumbai",
+    "daily_wage": 780,
+    "hourly_wage": 97.50,
+    "category": "Gig Worker",
+    "legal_act_ref": "Maharashtra Shops and Establishments Act"
+  },
+  {
+    "job": "Painter",
+    "state": "Maharashtra",
+    "city": "Mumbai",
+    "daily_wage": 980,
+    "hourly_wage": 122.50,
+    "category": "Skilled",
+    "legal_act_ref": "Maharashtra Construction Trades Rates"
+  },
+  {
+    "job": "Electrician",
+    "state": "Maharashtra",
+    "city": "Mumbai",
+    "daily_wage": 1050,
+    "hourly_wage": 131.25,
+    "category": "Highly Skilled",
+    "legal_act_ref": "Maharashtra Skilled Labor Board"
+  },
+  {
+    "job": "Security Guard",
+    "state": "Maharashtra",
+    "city": "Mumbai",
+    "daily_wage": 820,
+    "hourly_wage": 102.50,
+    "category": "Semi-skilled",
+    "legal_act_ref": "Maharashtra Guard Board Wage Gazette"
+  },
+  {
+    "job": "Domestic Worker",
+    "state": "Maharashtra",
+    "city": "Mumbai",
+    "daily_wage": 700,
+    "hourly_wage": 87.50,
+    "category": "Unskilled",
+    "legal_act_ref": "Maharashtra Domestic Workers Welfare Board"
+  },
+  
+  {
+    "job": "Construction Worker",
+    "state": "Karnataka",
+    "city": "Bengaluru",
+    "daily_wage": 880,
+    "hourly_wage": 110.00,
+    "category": "Unskilled / Semi-skilled",
+    "legal_act_ref": "Karnataka Minimum Wages Act"
+  },
+  {
+    "job": "Delivery Partner",
+    "state": "Karnataka",
+    "city": "Bengaluru",
+    "daily_wage": 750,
+    "hourly_wage": 93.75,
+    "category": "Gig Worker",
+    "legal_act_ref": "Karnataka Platform Workers Fair Wage Policy"
+  },
+  {
+    "job": "Painter",
+    "state": "Karnataka",
+    "city": "Bengaluru",
+    "daily_wage": 940,
+    "hourly_wage": 117.50,
+    "category": "Skilled",
+    "legal_act_ref": "Karnataka Minimum Wages Rules"
+  },
+  {
+    "job": "Electrician",
+    "state": "Karnataka",
+    "city": "Bengaluru",
+    "daily_wage": 1000,
+    "hourly_wage": 125.00,
+    "category": "Highly Skilled",
+    "legal_act_ref": "Karnataka Trades Gazette"
+  },
+  {
+    "job": "Security Guard",
+    "state": "Karnataka",
+    "city": "Bengaluru",
+    "daily_wage": 790,
+    "hourly_wage": 98.75,
+    "category": "Semi-skilled",
+    "legal_act_ref": "Karnataka Security Guard Wage Schedule"
+  },
+
+  {
+    "job": "Construction Worker",
+    "state": "Delhi",
+    "city": "Delhi",
+    "daily_wage": 894,
+    "hourly_wage": 111.75,
+    "category": "Unskilled",
+    "legal_act_ref": "Delhi NCT Minimum Wages Revision Act"
+  },
+  {
+    "job": "Delivery Partner",
+    "state": "Delhi",
+    "city": "Delhi",
+    "daily_wage": 800,
+    "hourly_wage": 100.00,
+    "category": "Gig Worker",
+    "legal_act_ref": "Delhi Shops & Establishment Gazette"
+  },
+  {
+    "job": "Painter",
+    "state": "Delhi",
+    "city": "Delhi",
+    "daily_wage": 970,
+    "hourly_wage": 121.25,
+    "category": "Skilled",
+    "legal_act_ref": "Delhi Labor Welfare Gazette"
+  },
+  {
+    "job": "Electrician",
+    "state": "Delhi",
+    "city": "Delhi",
+    "daily_wage": 1030,
+    "hourly_wage": 128.75,
+    "category": "Highly Skilled",
+    "legal_act_ref": "Delhi NCT Technical Minimum Wages"
+  },
+
+  {
+    "job": "Construction Worker",
+    "state": "West Bengal",
+    "city": "Kolkata",
+    "daily_wage": 760,
+    "hourly_wage": 95.00,
+    "category": "Unskilled",
+    "legal_act_ref": "West Bengal Minimum Wage Circular"
+  },
+  {
+    "job": "Delivery Partner",
+    "state": "West Bengal",
+    "city": "Kolkata",
+    "daily_wage": 680,
+    "hourly_wage": 85.00,
+    "category": "Gig Worker",
+    "legal_act_ref": "West Bengal Commercial Establishments Act"
+  },
+  {
+    "job": "Painter",
+    "state": "West Bengal",
+    "city": "Kolkata",
+    "daily_wage": 840,
+    "hourly_wage": 105.00,
+    "category": "Skilled",
+    "legal_act_ref": "West Bengal Minimum Wages Gazette"
+  }
+]

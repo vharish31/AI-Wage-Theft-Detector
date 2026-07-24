@@ -1,0 +1,58 @@
+[
+  {
+    "id": "wt-e90c54d4",
+    "job_type": "Delivery Partner",
+    "calculation_method": "Delivery Orders (25.0) \u00d7 Rate (\u20b935.0) + Incentives (\u20b9200.0)",
+    "expectedPay": 1075.0,
+    "actualPay": 850.0,
+    "wageTheftAmount": 225.0,
+    "wageTheftPercentage": 20.93,
+    "riskLevel": "Medium Risk",
+    "confidenceScore": 94,
+    "confidenceLevel": "High Confidence",
+    "status": "Possible Wage Theft",
+    "createdAt": "2026-07-23T12:42:58.431082+00:00"
+  },
+  {
+    "id": "wt-3d4c221a",
+    "job_type": "Delivery Partner",
+    "calculation_method": "Delivery Orders (25.0) \u00d7 Rate (\u20b935.0) + Incentives (\u20b9200.0)",
+    "expectedPay": 1075.0,
+    "actualPay": 850.0,
+    "wageTheftAmount": 225.0,
+    "wageTheftPercentage": 20.93,
+    "riskLevel": "Medium Risk",
+    "confidenceScore": 94,
+    "confidenceLevel": "High Confidence",
+    "status": "Possible Wage Theft",
+    "createdAt": "2026-07-23T12:30:32.017784+00:00"
+  },
+  {
+    "id": "wt-1001",
+    "job_type": "Delivery Partner",
+    "calculation_method": "Delivery Orders (25) \u00d7 Rate (\u20b935) + Incentives (\u20b9200)",
+    "expectedPay": 1075.0,
+    "actualPay": 850.0,
+    "wageTheftAmount": 225.0,
+    "wageTheftPercentage": 20.93,
+    "riskLevel": "Medium Risk",
+    "confidenceScore": 94,
+    "confidenceLevel": "High Confidence",
+    "status": "Possible Wage Theft",
+    "createdAt": "2026-07-20T10:00:00Z"
+  },
+  {
+    "id": "wt-1002",
+    "job_type": "Construction Worker",
+    "calculation_method": "Base Pay + Incentives",
+    "expectedPay": 850.0,
+    "actualPay": 600.0,
+    "wageTheftAmount": 250.0,
+    "wageTheftPercentage": 29.41,
+    "riskLevel": "High Risk",
+    "confidenceScore": 96,
+    "confidenceLevel": "High Confidence",
+    "status": "Possible Wage Theft",
+    "createdAt": "2026-07-21T14:30:00Z"
+  }
+]
