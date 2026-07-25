@@ -1,6 +1,6 @@
 {
-  "trained_at": "2026-07-25T18:34:34.325277+00:00",
-  "training_time_seconds": 16.43,
+  "trained_at": "2026-07-25T18:39:32.828651+00:00",
+  "training_time_seconds": 15.86,
   "dataset_summary": {
     "dataset_files": [
       "dataset_part1.csv",
