@@ -43,11 +43,10 @@ export default function Report({ auditResult }) {
   };
 
   useEffect(() => {
-    // Automatically generate complaint letter if underpaid
-    if (data.is_underpaid && !complaintData) {
-      handleGenerateComplaint();
-    }
+    // Reset complaint data when data prop changes, requiring user click to generate
+    setComplaintData(null);
   }, [data]);
+
 
   const handleGenerateComplaint = async () => {
     setIsGenerating(true);
@@ -317,15 +316,20 @@ export default function Report({ auditResult }) {
               )}
             </div>
           ) : (
-            <div className="text-center py-8">
+            <div className="text-center py-10 space-y-4">
+              <p className="text-slate-300 text-sm max-w-md mx-auto leading-relaxed">
+                Click below to generate an official statutory complaint letter formatted for the Labor Commissioner under the Minimum Wages Act.
+              </p>
               <button
                 onClick={handleGenerateComplaint}
-                className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm"
+                className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm shadow-xl shadow-cyan-500/20 inline-flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
               >
-                Generate Complaint Letter with Gemini AI
+                <Sparkles className="w-5 h-5 text-slate-950" />
+                Generate Legal Complaint Letter with AI
               </button>
             </div>
           )}
+
 
         </div>
       ) : (
