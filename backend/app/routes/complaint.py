@@ -49,11 +49,24 @@ async def generate_complaint(payload: ComplaintRequest):
     """
     POST /complaint
     Generates a formal legal complaint letter using Gemini AI (with fallback template).
+    If received >= expected, complaint generation is skipped.
     """
     try:
         worker_name = payload.worker_name or "Worker"
         employer_name = payload.employer_name or "Employer / Site Supervisor"
         hours = payload.hours_worked or 8.0
+
+        # RULE: If received >= expected, complaint letter is NOT required.
+        if payload.received >= payload.expected:
+            return ComplaintResponse(
+                complaint="",
+                summary=f"Fair wage compliance verified. Actual amount received (₹{payload.received:.2f}) meets or exceeds statutory benchmark (₹{payload.expected:.2f}). Complaint letter is not required.",
+                recommended_actions=[
+                    "No legal complaint required as payment meets statutory wage standards.",
+                    "Keep daily work shift logs and pay slips for personal records."
+                ],
+                legal_section="Fair Wage Compliance Verified (Minimum Wages Act, 1948)"
+            )
 
         # Call Gemini AI letter generator
         letter = generate_complaint_letter_gemini(
@@ -108,30 +121,37 @@ async def generate_pdf(payload: ComplaintRequest):
         employer_name = payload.employer_name or "Employer / Site Supervisor"
         hours = payload.hours_worked or 8.0
 
-        letter = generate_complaint_letter_gemini(
-            job_type=payload.job_type,
-            location=payload.location,
-            expected=payload.expected,
-            received=payload.received,
-            hours_worked=hours,
-            worker_name=worker_name,
-            employer_name=employer_name
-        )
-
-        if not letter:
-            letter = build_fallback_complaint(
+        if payload.received >= payload.expected:
+            letter = f"FAIR WAGE COMPLIANCE VERIFIED:\nActual amount received (Rs. {payload.received:.2f}) meets or exceeds statutory expected wage (Rs. {payload.expected:.2f}). No wage underpayment detected. A formal legal complaint letter is not required."
+            diff = 0.0
+            risk_score = 0.0
+            risk_level = "No Issue"
+        else:
+            letter = generate_complaint_letter_gemini(
                 job_type=payload.job_type,
                 location=payload.location,
                 expected=payload.expected,
                 received=payload.received,
-                hours=hours,
-                worker=worker_name,
-                employer=employer_name
+                hours_worked=hours,
+                worker_name=worker_name,
+                employer_name=employer_name
             )
 
-        diff = max(0.0, payload.expected - payload.received)
-        risk_score = round((diff / payload.expected) * 100, 1) if payload.expected > 0 else 0
-        risk_level = compute_risk_level(risk_score)
+            if not letter:
+                letter = build_fallback_complaint(
+                    job_type=payload.job_type,
+                    location=payload.location,
+                    expected=payload.expected,
+                    received=payload.received,
+                    hours=hours,
+                    worker=worker_name,
+                    employer=employer_name
+                )
+
+            diff = max(0.0, payload.expected - payload.received)
+            risk_score = round((diff / payload.expected) * 100, 1) if payload.expected > 0 else 0
+            risk_level = compute_risk_level(risk_score)
+
 
         pdf_bytes = generate_wage_theft_pdf_report(
             job_type=payload.job_type,

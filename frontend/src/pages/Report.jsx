@@ -247,86 +247,103 @@ export default function Report({ auditResult }) {
       </div>
 
       {/* AI COMPLAINT LETTER GENERATOR */}
-      <div className="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700 space-y-6">
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
-              <FileText className="w-6 h-6" />
+      {data.received_amount < data.expected_wage ? (
+        <div className="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700 space-y-6">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                <FileText className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white">
+                  AI-Generated Formal Legal Complaint
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Statutory complaint formatted for the Labor Commissioner under the Minimum Wages Act
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">
-                AI-Generated Formal Legal Complaint
-              </h2>
-              <p className="text-xs text-slate-400">
-                Statutory complaint formatted for the Labor Commissioner under the Minimum Wages Act
-              </p>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleCopyComplaint}
+                disabled={!complaintData?.complaint}
+                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+                  copied
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                }`}
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-400" /> Copied to Clipboard!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 text-cyan-400" /> Copy Letter
+                  </>
+                )}
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleCopyComplaint}
-              disabled={!complaintData?.complaint}
-              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-                copied
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
-              }`}
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 text-emerald-400" /> Copied to Clipboard!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 text-cyan-400" /> Copy Letter
-                </>
+          {isGenerating ? (
+            <div className="py-12 flex flex-col items-center justify-center space-y-3 text-slate-400">
+              <Sparkles className="w-8 h-8 text-cyan-400 animate-spin" />
+              <p className="text-sm font-semibold">Drafting formal legal grievance letter using Gemini AI...</p>
+            </div>
+          ) : complaintData?.complaint ? (
+            <div className="space-y-4">
+              <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto selection:bg-cyan-500 selection:text-slate-950">
+                {complaintData.complaint}
+              </div>
+
+              {/* Recommended Legal Actions */}
+              {complaintData.recommended_actions && (
+                <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
+                    <BookOpen className="w-4 h-4" /> Next Steps for Worker
+                  </span>
+                  <ul className="space-y-1.5 text-xs text-slate-300">
+                    {complaintData.recommended_actions.map((act, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="text-cyan-400 font-bold">•</span>
+                        <span>{act}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
-            </button>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <button
+                onClick={handleGenerateComplaint}
+                className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm"
+              >
+                Generate Complaint Letter with Gemini AI
+              </button>
+            </div>
+          )}
+
+        </div>
+      ) : (
+        <div className="glass-card rounded-2xl p-6 sm:p-8 border border-emerald-500/30 bg-emerald-950/20 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-emerald-400">
+              No Complaint Letter Required
+            </h2>
+            <p className="text-sm text-slate-200 leading-relaxed">
+              Your reported payout of <span className="font-extrabold text-white">₹{data.received_amount.toFixed(2)}</span> meets or exceeds the statutory minimum wage benchmark of <span className="font-extrabold text-white">₹{data.expected_wage.toFixed(2)}</span>. Because no wage underpayment occurred, generating a legal complaint letter is not required.
+            </p>
           </div>
         </div>
+      )}
 
-        {isGenerating ? (
-          <div className="py-12 flex flex-col items-center justify-center space-y-3 text-slate-400">
-            <Sparkles className="w-8 h-8 text-cyan-400 animate-spin" />
-            <p className="text-sm font-semibold">Drafting formal legal grievance letter using Gemini AI...</p>
-          </div>
-        ) : complaintData?.complaint ? (
-          <div className="space-y-4">
-            <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto selection:bg-cyan-500 selection:text-slate-950">
-              {complaintData.complaint}
-            </div>
-
-            {/* Recommended Legal Actions */}
-            {complaintData.recommended_actions && (
-              <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
-                  <BookOpen className="w-4 h-4" /> Next Steps for Worker
-                </span>
-                <ul className="space-y-1.5 text-xs text-slate-300">
-                  {complaintData.recommended_actions.map((act, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className="text-cyan-400 font-bold">•</span>
-                      <span>{act}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <button
-              onClick={handleGenerateComplaint}
-              className="px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm"
-            >
-              Generate Complaint Letter with Gemini AI
-            </button>
-          </div>
-        )}
-
-      </div>
 
     </div>
   );

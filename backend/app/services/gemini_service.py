@@ -65,12 +65,14 @@ def generate_complaint_letter_gemini(job_type: str, location: str, expected: flo
     """
     Uses Gemini API to generate a formal legal complaint letter to the Labor Commissioner.
     """
-    difference = expected - received
-    percentage = round((difference / expected) * 100, 1) if expected > 0 else 0
+    if received >= expected:
+        logger.info(f"Received wage (Rs. {received}) >= Expected wage (Rs. {expected}). Complaint letter is not required.")
+        return None
 
     if not GEMINI_API_KEY:
         logger.info("No GEMINI_API_KEY provided. Using structured complaint template generator.")
         return None
+
 
     prompt = f"""
     You are an expert labor rights advocate and legal counselor in India.
