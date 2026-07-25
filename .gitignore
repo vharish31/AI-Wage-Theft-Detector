@@ -21,3 +21,10 @@ backend/.env
 .DS_Store
 Thumbs.db
 *.log
+
+# Datasets & ML Model Artifacts
+datasets/
+backend/data/datasets/
+backend/data/models/*.joblib
+*.csv
+

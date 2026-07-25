@@ -1,16 +1,18 @@
 {
-  "trained_at": "2026-07-25T18:22:08.066350+00:00",
-  "training_time_seconds": 5.38,
+  "trained_at": "2026-07-25T18:34:34.325277+00:00",
+  "training_time_seconds": 16.43,
   "dataset_summary": {
     "dataset_files": [
       "dataset_part1.csv",
       "dataset_part2.csv",
       "dataset_part3.csv",
       "dataset_part4.csv",
+      "payroll.csv",
+      "processed-payroll.csv",
       "train-test-payroll.csv"
     ],
-    "total_files": 5,
-    "total_records": 40000,
+    "total_files": 7,
+    "total_records": 80000,
     "columns": [
       "Employee_ID",
       "State",
@@ -55,17 +57,25 @@
       "Risk_Score",
       "Wage_Theft",
       "Theft_Type",
-      "REGULAR_PAY",
+      "RECORD_NBR",
       "PAY_YEAR",
       "DEPARTMENT_NO",
+      "DEPARTMENT_TITLE",
       "JOB_CLASS_PGRADE",
       "JOB_TITLE",
+      "EMPLOYMENT_TYPE",
+      "JOB_STATUS",
+      "MOU",
+      "MOU_TITLE",
+      "REGULAR_PAY",
       "OVERTIME_PAY",
       "ALL_OTHER_PAY",
+      "TOTAL_PAY",
       "CITY_RETIREMENT_CONTRIBUTIONS",
       "BENEFIT_PAY",
       "GENDER",
-      "ETHNICITY"
+      "ETHNICITY",
+      "Unnamed: 0"
     ],
     "file_details": [
       {
@@ -93,6 +103,18 @@
         "original_rows": 5000
       },
       {
+        "filename": "payroll.csv",
+        "path": "D:\\Hackathon Projects\\AI Wage Theft Detector\\datasets\\payroll.csv",
+        "rows": 20000,
+        "original_rows": 685461
+      },
+      {
+        "filename": "processed-payroll.csv",
+        "path": "D:\\Hackathon Projects\\AI Wage Theft Detector\\datasets\\processed-payroll.csv",
+        "rows": 20000,
+        "original_rows": 676293
+      },
+      {
         "filename": "train-test-payroll.csv",
         "path": "D:\\Hackathon Projects\\AI Wage Theft Detector\\datasets\\train-test-payroll.csv",
         "rows": 20000,
@@ -102,58 +124,58 @@
   },
   "metrics": {
     "wage_theft_classifier": {
-      "accuracy": 0.993,
-      "f1_score": 0.991
+      "accuracy": 0.9968,
+      "f1_score": 0.9956
     },
     "risk_score_regressor": {
-      "mae": 0.1753,
-      "r2_score": 0.9992
+      "mae": 0.3466,
+      "r2_score": 0.9987
     },
     "theft_type_classifier": {
-      "accuracy": 0.993,
-      "f1_score_macro": 0.9828
+      "accuracy": 0.9968,
+      "f1_score_macro": 0.9835
     }
   },
   "top_features": [
     {
       "feature": "Minimum_Wage_Violation",
-      "importance": 0.2542
+      "importance": 0.2674
     },
     {
       "feature": "Illegal_Deductions",
-      "importance": 0.1868
+      "importance": 0.2386
     },
     {
       "feature": "Illegal_Deduction_Violation",
-      "importance": 0.1219
+      "importance": 0.1462
     },
     {
       "feature": "Overtime_Violation",
-      "importance": 0.1155
+      "importance": 0.1067
     },
     {
       "feature": "Salary_Delay_Days",
-      "importance": 0.0711
-    },
-    {
-      "feature": "Late_Payment",
-      "importance": 0.0707
-    },
-    {
-      "feature": "Overtime_Paid",
-      "importance": 0.0481
+      "importance": 0.0408
     },
     {
       "feature": "Actual_Salary",
-      "importance": 0.0235
+      "importance": 0.0346
+    },
+    {
+      "feature": "Late_Payment",
+      "importance": 0.0327
     },
     {
       "feature": "Actual_Hourly_Wage",
-      "importance": 0.0216
+      "importance": 0.0296
+    },
+    {
+      "feature": "Overtime_Paid",
+      "importance": 0.0236
     },
     {
       "feature": "Legal_Deductions",
-      "importance": 0.0165
+      "importance": 0.018
     }
   ],
   "model_status": "Ready",

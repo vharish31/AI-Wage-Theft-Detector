@@ -105,8 +105,9 @@ def train_ml_pipeline() -> dict:
     }
 
     bundle_path = os.path.join(MODEL_DIR, "wage_theft_pipeline.joblib")
-    joblib.dump(pipeline_bundle, bundle_path)
+    joblib.dump(pipeline_bundle, bundle_path, compress=3)
     logger.info(f"Saved trained pipeline bundle to '{bundle_path}'.")
+
 
     # 10. Save Metadata JSON
     metadata = {

@@ -146,7 +146,8 @@ def load_combined_dataset() -> Tuple[pd.DataFrame, Dict[str, Any]]:
     for f in files:
         filename = os.path.basename(f)
         try:
-            df_part = pd.read_csv(f)
+            df_part = pd.read_csv(f, low_memory=False)
+
 
             # Sample large datasets (>20,000 rows) to maintain fast training (<5s)
             original_len = len(df_part)
