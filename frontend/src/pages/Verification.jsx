@@ -242,9 +242,9 @@ export default function Verification({ workData, setAuditResult }) {
               required
               value={receivedAmount}
               onChange={(e) => setReceivedAmount(e.target.value)}
-              placeholder="e.g. 600"
               className="w-full pl-12 pr-4 py-4 bg-slate-950 border border-slate-700 focus:border-cyan-500 rounded-xl text-2xl font-black text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
             />
+
           </div>
           <p className="text-xs text-slate-400">
             Enter the exact cash amount or UPI payment received for this shift.

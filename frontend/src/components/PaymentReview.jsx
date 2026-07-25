@@ -166,9 +166,9 @@ export default function PaymentReview({
               step="1"
               value={amountVal}
               onChange={handleManualInputChange}
-              placeholder="e.g. 600"
               className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white font-black text-lg focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400"
             />
+
           </div>
         </div>
       ) : null}
