@@ -13,7 +13,9 @@ import LocationDetector from '../components/LocationDetector';
 import LocationSelector from '../components/LocationSelector';
 import LocationReview from '../components/LocationReview';
 import HoursSelector from '../components/HoursSelector';
+import HoursEstimator from '../components/HoursEstimator';
 import { extractSpeechData, validateWorkDataAPI, normalizeJobAPI, validateLocationAPI } from '../services/api';
+
 import { normalizeJobType } from '../utils/jobAliases';
 import { resolveLocationState } from '../utils/locationHelper';
 import { Sparkles, ArrowRight, CheckCircle2, RefreshCw, ShieldCheck, MapPin, Clock } from 'lucide-react';
@@ -188,6 +190,19 @@ export default function VoiceLog({ workData, setWorkData }) {
     runValidationCheck(updated);
   };
 
+  const handleConfirmHoursEstimation = (metadata) => {
+    const updated = {
+      ...extractedData,
+      hours_worked: metadata.final_hours,
+      hours_metadata: metadata
+    };
+    setExtractedData(updated);
+    setWorkData(updated);
+    setHoursStep('confirmed');
+    runValidationCheck(updated);
+  };
+
+
   // Job Type Validation Layer Handlers
   const handleConfirmJobTypeReview = (confirmedJob) => {
     const updated = { ...extractedData, job_type: normalizeJobType(confirmedJob) };
@@ -318,30 +333,13 @@ export default function VoiceLog({ workData, setWorkData }) {
             </div>
           )}
 
-          {/* Validation Layer Warning if Hours Missing */}
-          {(!extractedData.hours_worked || hoursStep === 'selector') && (
-            <div className="bg-amber-950/80 border border-amber-500/50 rounded-xl p-4 flex items-center justify-between text-amber-200">
-              <div className="flex items-center gap-2 text-sm font-bold">
-                <Clock className="w-5 h-5 text-cyan-400" />
-                <span>⚠ Work shift duration required for accurate wage calculation.</span>
-              </div>
-              {hoursStep !== 'selector' && (
-                <button
-                  type="button"
-                  onClick={() => setHoursStep('selector')}
-                  className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold"
-                >
-                  Specify Hours
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Hours Duration Resolution Selector */}
-          {(!extractedData.hours_worked || hoursStep === 'selector') && (
-            <HoursSelector
-              initialHours={extractedData.hours_worked}
-              onHoursSelected={handleHoursSelected}
+          {/* Smart Hours Estimation Component */}
+          {(!extractedData.hours_worked || hoursStep === 'estimator') && (
+            <HoursEstimator
+              transcript={confirmedTranscript || rawTranscript || ''}
+              hoursWorked={extractedData.hours_worked}
+              onConfirmHours={handleConfirmHoursEstimation}
+              onRecordAgain={handleReRecord}
             />
           )}
 
@@ -434,15 +432,23 @@ export default function VoiceLog({ workData, setWorkData }) {
                       <button
                         type="button"
                         onClick={() => setJobValidationStep('selector')}
-                        className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs"
+                        className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs cursor-pointer"
                       >
                         Modify Job Role
                       </button>
 
                       <button
                         type="button"
+                        onClick={() => setHoursStep('estimator')}
+                        className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs cursor-pointer"
+                      >
+                        Modify Work Hours
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={() => setLocationStep('selector')}
-                        className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-300 font-bold text-xs"
+                        className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-300 font-bold text-xs cursor-pointer"
                       >
                         Modify Location
                       </button>
@@ -454,7 +460,7 @@ export default function VoiceLog({ workData, setWorkData }) {
                       className={`w-full sm:w-auto px-8 py-4 rounded-xl font-extrabold text-base shadow-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 ${
                         !extractedData.location || !extractedData.hours_worked || (validationResult?.error && showValidationWarning)
                           ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                          : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-500/20'
+                          : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-500/20 cursor-pointer'
                       }`}
                     >
                       Proceed to Payment Verification
@@ -465,6 +471,7 @@ export default function VoiceLog({ workData, setWorkData }) {
               )}
             </>
           )}
+
 
         </div>
       )}

@@ -362,5 +362,78 @@ export const validateWorkDataAPI = async (payload) => {
   }
 };
 
+/**
+ * Intelligently estimate work hours from natural language statements
+ * @param {string} transcript 
+ * @param {number|null} hours_worked 
+ */
+export const estimateHoursAPI = async (transcript, hours_worked = null) => {
+  try {
+    const response = await apiClient.post('/hours/estimate', {
+      transcript,
+      hours_worked
+    });
+    return response.data;
+  } catch (error) {
+    console.warn('Backend hours estimate API offline, using local estimation fallback:', error.message);
+    const text = (transcript || '').toLowerCase();
+    let estimated_hours = 8.0;
+    let confidence = 0.70;
+    let shift_type = 'Full Day (8 Hours)';
+    let reasoning = 'Based on standard informal work patterns.';
+    let source = 'LOCAL_ESTIMATION';
+
+    if (text.includes('half day') || text.includes('half shift')) {
+      estimated_hours = 4.0;
+      confidence = 0.90;
+      shift_type = 'Half Day (4 Hours)';
+      reasoning = "Based on your statement: 'Half day'";
+    } else if (text.includes('morning to evening') || text.includes('morning till evening') || text.includes('whole day') || text.includes('full day')) {
+      estimated_hours = 8.0;
+      confidence = 0.90;
+      shift_type = 'Full Day (8 Hours)';
+      reasoning = "Based on your statement: 'Whole day / Full day'";
+    } else if (text.includes('night shift') || text.includes('overnight') || text.includes('all night')) {
+      estimated_hours = 10.0;
+      confidence = 0.85;
+      shift_type = 'Night Shift (10 Hours)';
+      reasoning = "Based on your statement: 'Night shift'";
+    } else if (text.includes('few hours') || text.includes('short shift')) {
+      estimated_hours = 3.0;
+      confidence = 0.75;
+      shift_type = 'Short Shift (3 Hours)';
+      reasoning = "Based on your statement: 'Few hours'";
+    } else if (text.includes('overtime') || text.includes('extra hours')) {
+      estimated_hours = 10.0;
+      confidence = 0.85;
+      shift_type = 'Overtime Shift (10 Hours)';
+      reasoning = "Based on your statement: 'Overtime'";
+    } else if (hours_worked && hours_worked > 0) {
+      estimated_hours = parseFloat(hours_worked);
+      confidence = 0.95;
+      reasoning = `Extracted explicit work duration of ${hours_worked} hours.`;
+    }
+
+    let validation = { valid: true, status: 'OK', message: 'Work hours within standard limits.', needs_confirmation: false };
+    if (estimated_hours < 1.0) {
+      validation = { valid: false, status: 'WARNING_MIN', message: 'Working hours cannot be less than 1.', needs_confirmation: true };
+    } else if (estimated_hours > 24.0) {
+      validation = { valid: false, status: 'REJECT_MAX', message: 'Working hours cannot exceed 24 hours in a single day.', needs_confirmation: false };
+    } else if (estimated_hours > 16.0) {
+      validation = { valid: true, status: 'WARNING_HIGH', message: 'Unusual work duration detected (>16 hours).', needs_confirmation: true };
+    }
+
+    return {
+      estimated_hours,
+      confidence,
+      source,
+      reasoning,
+      shift_type,
+      validation
+    };
+  }
+};
+
+
 export default apiClient;
 
