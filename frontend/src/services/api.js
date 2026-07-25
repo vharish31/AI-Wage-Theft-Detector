@@ -434,6 +434,72 @@ export const estimateHoursAPI = async (transcript, hours_worked = null) => {
   }
 };
 
+/**
+ * Smart Payment Validation API call with local fallback
+ * @param {Object} payload 
+ */
+export const validatePaymentAPI = async (payload) => {
+  try {
+    const response = await apiClient.post('/payment/validate', payload);
+    return response.data;
+  } catch (error) {
+    console.warn('Backend payment validate API offline, using local validation fallback:', error.message);
+    const amt = payload.received_amount;
+    const expected = payload.expected_wage || 850.0;
+
+    if (amt === null || amt === undefined || String(amt).trim() === '') {
+      return { valid: false, warning_level: 'REJECT', validation_status: 'EMPTY', message: 'Please enter a valid payment amount.', confidence: 0.0 };
+    }
+    const val = parseFloat(amt);
+    if (isNaN(val)) {
+      return { valid: false, warning_level: 'REJECT', validation_status: 'INVALID_FORMAT', message: 'Please enter a valid numeric payment amount.', confidence: 0.0 };
+    }
+    if (val < 0) {
+      return { valid: false, warning_level: 'REJECT', validation_status: 'NEGATIVE', message: 'Payment amount cannot be negative.', confidence: 0.0 };
+    }
+    if (val === 0) {
+      return { valid: false, warning_level: 'REJECT', validation_status: 'ZERO', message: 'Payment amount must be greater than ₹0.', confidence: 0.0 };
+    }
+
+    let suggested_amount = null;
+    let has_typo = false;
+    if (val > 3000 && Math.abs((val / 10) - expected) < 200) {
+      suggested_amount = Math.round((val / 10) * 100) / 100;
+      has_typo = true;
+    } else if (val < 150 && Math.abs((val * 10) - expected) < 200) {
+      suggested_amount = Math.round((val * 10) * 100) / 100;
+      has_typo = true;
+    }
+
+    const ratio = val / expected;
+    let warning_level = 'NORMAL';
+    let msg = 'Payment amount appears valid.';
+    if (ratio > 5.0 || val > 50000) {
+      warning_level = 'HIGH';
+      msg = `⚠ This payment amount (₹${val}) appears unusually high.`;
+    } else if (ratio < 0.15 || val < 50) {
+      warning_level = 'HIGH';
+      msg = `⚠ This payment amount (₹${val}) appears unusually low.`;
+    } else if (ratio < 0.60 || ratio > 2.0) {
+      warning_level = 'MEDIUM';
+      msg = `Please verify payment amount (₹${val}).`;
+    }
+
+    return {
+      valid: true,
+      warning_level: has_typo ? 'HIGH' : warning_level,
+      validation_status: has_typo ? 'TYPO_OR_HIGH_ANOMALY' : (warning_level === 'HIGH' ? 'TYPO_OR_HIGH_ANOMALY' : 'VALID'),
+      original_amount: val,
+      expected_wage: expected,
+      suggested_amount,
+      has_typo,
+      message: msg,
+      confidence: has_typo ? 0.45 : (warning_level === 'NORMAL' ? 0.96 : 0.60),
+      source: 'LOCAL_PAYMENT_VALIDATION',
+      job_type: payload.job_type || 'Worker',
+      hours_worked: payload.hours_worked || 8.0
+    };
+  }
+};
 
 export default apiClient;
-

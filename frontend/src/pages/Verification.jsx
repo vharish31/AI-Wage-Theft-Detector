@@ -4,6 +4,8 @@ import { detectWageTheft, validateWorkDataAPI } from '../services/api';
 import ProcessFlowStepper from '../components/ProcessFlowStepper';
 import ValidationBanner from '../components/ValidationBanner';
 import ModernNumberInput from '../components/ModernNumberInput';
+import PaymentReview from '../components/PaymentReview';
+
 import { resolveLocationState } from '../utils/locationHelper';
 import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles } from 'lucide-react';
 
@@ -240,6 +242,7 @@ export default function Verification({ workData, setAuditResult }) {
               required
               value={receivedAmount}
               onChange={(e) => setReceivedAmount(e.target.value)}
+              placeholder="e.g. 600"
               className="w-full pl-12 pr-4 py-4 bg-slate-950 border border-slate-700 focus:border-cyan-500 rounded-xl text-2xl font-black text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
             />
           </div>
@@ -247,6 +250,21 @@ export default function Verification({ workData, setAuditResult }) {
             Enter the exact cash amount or UPI payment received for this shift.
           </p>
         </div>
+
+        {/* Smart Payment Amount Validation Review */}
+        {receivedAmount && Number(receivedAmount) > 0 && (
+          <PaymentReview
+            enteredAmount={receivedAmount}
+            expectedWage={jobType === 'Painter' ? 900 : (jobType === 'Electrician' ? 950 : 850)}
+            jobType={jobType}
+            hoursWorked={hoursWorked}
+            onChangeAmount={(newAmt) => setReceivedAmount(newAmt)}
+            onConfirmPayment={(meta) => {
+              setReceivedAmount(meta.final_amount);
+            }}
+          />
+        )}
+
 
         {/* Live Horizontal Process Stepper */}
         {isChecking && (
