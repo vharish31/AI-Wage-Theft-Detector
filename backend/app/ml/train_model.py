@@ -59,7 +59,7 @@ def train_ml_pipeline() -> dict:
 
     # 5. Train Model 1: Wage Theft Binary Classifier
     logger.info("Training Wage Theft Binary Classifier...")
-    wage_theft_clf = RandomForestClassifier(n_estimators=100, max_depth=15, random_state=42, n_jobs=-1)
+    wage_theft_clf = RandomForestClassifier(n_estimators=50, max_depth=12, random_state=42, n_jobs=-1)
     wage_theft_clf.fit(X_train_scaled, y_wt_train)
     wt_preds = wage_theft_clf.predict(X_test_scaled)
     wt_acc = float(accuracy_score(y_wt_test, wt_preds))
@@ -67,7 +67,7 @@ def train_ml_pipeline() -> dict:
 
     # 6. Train Model 2: Risk Score Regressor
     logger.info("Training Risk Score Regressor...")
-    risk_score_reg = RandomForestRegressor(n_estimators=100, max_depth=15, random_state=42, n_jobs=-1)
+    risk_score_reg = RandomForestRegressor(n_estimators=50, max_depth=12, random_state=42, n_jobs=-1)
     risk_score_reg.fit(X_train_scaled, y_rs_train)
     rs_preds = risk_score_reg.predict(X_test_scaled)
     rs_mae = float(mean_absolute_error(y_rs_test, rs_preds))
@@ -75,11 +75,12 @@ def train_ml_pipeline() -> dict:
 
     # 7. Train Model 3: Theft Type Classifier
     logger.info("Training Theft Type Classifier...")
-    theft_type_clf = RandomForestClassifier(n_estimators=100, max_depth=15, random_state=42, n_jobs=-1)
+    theft_type_clf = RandomForestClassifier(n_estimators=50, max_depth=12, random_state=42, n_jobs=-1)
     theft_type_clf.fit(X_train_scaled, y_tt_train)
     tt_preds = theft_type_clf.predict(X_test_scaled)
     tt_acc = float(accuracy_score(y_tt_test, tt_preds))
     tt_f1 = float(f1_score(y_tt_test, tt_preds, average='macro', zero_division=0))
+
 
     # 8. Feature Importance Extraction
     importances = wage_theft_clf.feature_importances_

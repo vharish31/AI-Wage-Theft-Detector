@@ -83,14 +83,13 @@ def harmonize_dataframe(df: pd.DataFrame, filename: str) -> pd.DataFrame:
         df_clean[TARGET_RISK] = np.clip(risk_scores, 0.0, 100.0)
         df_clean[TARGET_BINARY] = np.where(df_clean[TARGET_RISK] >= 15.0, "Yes", "No")
 
-        def map_theft_type(row):
-            if row[TARGET_RISK] < 15.0:
-                return "None"
-            if row.get("OVERTIME_PAY", 0) == 0:
-                return "Unpaid Overtime"
-            return "Minimum Wage Violation"
+        is_theft = df_clean[TARGET_RISK] >= 15.0
+        no_ot = (ot_pay == 0)
+        df_clean[TARGET_TYPE] = np.where(
+            ~is_theft, "None",
+            np.where(no_ot, "Unpaid Overtime", "Minimum Wage Violation")
+        )
 
-        df_clean[TARGET_TYPE] = df_clean.apply(map_theft_type, axis=1)
 
         # Standard features mapping
         df_clean["Occupation"] = df_clean["JOB_TITLE"].astype(str) if "JOB_TITLE" in df_clean.columns else "Payroll Employee"
@@ -149,11 +148,7 @@ def load_combined_dataset() -> Tuple[pd.DataFrame, Dict[str, Any]]:
             df_part = pd.read_csv(f, low_memory=False)
 
 
-            # Sample large datasets (>20,000 rows) to maintain fast training (<5s)
             original_len = len(df_part)
-            if original_len > 20000:
-                df_part = df_part.sample(n=20000, random_state=42)
-
             df_harmonized = harmonize_dataframe(df_part, filename)
             dfs.append(df_harmonized)
 
@@ -163,7 +158,8 @@ def load_combined_dataset() -> Tuple[pd.DataFrame, Dict[str, Any]]:
                 "rows": len(df_harmonized),
                 "original_rows": original_len
             })
-            logger.info(f"Loaded dataset '{filename}' ({original_len} rows, sampled {len(df_harmonized)} rows).")
+            logger.info(f"Loaded dataset '{filename}' with full {original_len:,} rows.")
+
         except Exception as e:
             logger.error(f"Failed to read dataset file '{f}': {str(e)}")
 
