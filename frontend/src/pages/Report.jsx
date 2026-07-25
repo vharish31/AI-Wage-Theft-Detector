@@ -328,7 +328,11 @@ export default function Report({ auditResult }) {
           )}
 
         </div>
+      ) : (
+
+
         <div className="glass-card rounded-2xl p-6 sm:p-8 border border-emerald-500/40 bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 shadow-2xl relative overflow-hidden space-y-6">
+
           {/* Decorative Background Glow */}
           <div className="absolute -right-16 -top-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
