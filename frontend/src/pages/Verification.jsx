@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { detectWageTheft, validateWorkDataAPI } from '../services/api';
+import { detectWageTheft, validateWorkDataAPI, auditMultiJobsAPI } from '../services/api';
 import ProcessFlowStepper from '../components/ProcessFlowStepper';
 import ValidationBanner from '../components/ValidationBanner';
 import ModernNumberInput from '../components/ModernNumberInput';
-
+import MultiJobForm from '../components/MultiJobForm';
 
 import { resolveLocationState } from '../utils/locationHelper';
-import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles } from 'lucide-react';
+import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles, Layers, Plus } from 'lucide-react';
 
 export default function Verification({ workData, setAuditResult }) {
   const navigate = useNavigate();
@@ -20,6 +20,13 @@ export default function Verification({ workData, setAuditResult }) {
   const [isChecking, setIsChecking] = useState(false);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
+  const [isMultiJobMode, setIsMultiJobMode] = useState(workData?.is_multi_job || false);
+  const [multiJobs, setMultiJobs] = useState(
+    workData?.multi_jobs && workData.multi_jobs.length > 0
+      ? workData.multi_jobs
+      : [{ job_id: 'job-1', job_type: workData?.job_type || 'Painter', hours_worked: workData?.hours_worked || 8, location: workData?.location || 'Chennai', received_amount: 0, employer_name: 'Employer 1' }]
+  );
+
   const [validationResult, setValidationResult] = useState(null);
   const [showValidationWarning, setShowValidationWarning] = useState(false);
 
@@ -30,8 +37,30 @@ export default function Verification({ workData, setAuditResult }) {
       if (workData.hours_worked) setHoursWorked(workData.hours_worked);
       if (workData.location) setLocation(workData.location);
       if (workData.worker_name) setWorkerName(workData.worker_name);
+      if (workData.is_multi_job) setIsMultiJobMode(true);
+      if (workData.multi_jobs && workData.multi_jobs.length > 0) setMultiJobs(workData.multi_jobs);
     }
   }, [workData]);
+
+  const handleMultiJobAudit = async () => {
+    setIsChecking(true);
+    try {
+      const multiResult = await auditMultiJobsAPI({
+        worker_name: workerName || 'Worker',
+        jobs: multiJobs
+      });
+      setAuditResult({
+        ...multiResult,
+        is_multi_job: true
+      });
+      navigate('/report');
+    } catch (err) {
+      console.error('Error running multi-job audit:', err);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
 
   const defaultCities = [
     'Chennai', 'Mumbai', 'Bengaluru', 'Mangalore', 'Delhi', 'Kolkata', 'Hyderabad',
@@ -120,18 +149,46 @@ export default function Verification({ workData, setAuditResult }) {
   return (
     <div className="max-w-3xl mx-auto space-y-8 py-6">
       
-      {/* Page Header */}
-      <div className="space-y-2 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold">
-          STEP 3 & 4: PAYMENT VERIFICATION ENGINE
+      {/* Page Header & Mode Toggle */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1 text-center sm:text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold">
+            STEP 3 & 4: PAYMENT VERIFICATION ENGINE
+          </div>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            {isMultiJobMode ? 'Multi-Job Workday Verification' : 'Verify Wage & Amount Received'}
+          </h1>
+          <p className="text-slate-400 text-sm">
+            {isMultiJobMode
+              ? 'Log multiple jobs performed in a single day and verify statutory wages for each shift.'
+              : 'Enter the actual amount paid by your employer. We will cross-examine it against statutory minimum wage datasets.'}
+          </p>
         </div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">
-          Verify Wage & Amount Received
-        </h1>
-        <p className="text-slate-400 text-sm">
-          Enter the actual amount paid by your employer. We will cross-examine it against statutory minimum wage datasets.
-        </p>
+
+        <button
+          type="button"
+          onClick={() => setIsMultiJobMode(!isMultiJobMode)}
+          className={`px-4 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 border transition-all cursor-pointer shrink-0 ${
+            isMultiJobMode
+              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40 hover:bg-cyan-500/30'
+              : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-cyan-500/50 hover:text-white'
+          }`}
+        >
+          <Layers className="w-4 h-4 text-cyan-400" />
+          {isMultiJobMode ? '✓ Multi-Job Mode Active' : '+ Switch to Multi-Job Mode'}
+        </button>
       </div>
+
+      {/* Render Multi-Job Form if MultiJobMode is active */}
+      {isMultiJobMode ? (
+        <MultiJobForm
+          jobs={multiJobs}
+          onUpdateJobs={setMultiJobs}
+          onSubmitAudit={handleMultiJobAudit}
+          isAuditing={isChecking}
+        />
+      ) : (
+
 
       <form onSubmit={handleCheckWageTheft} className="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700 space-y-6">
         
@@ -289,6 +346,8 @@ export default function Verification({ workData, setAuditResult }) {
         </button>
 
       </form>
+      )}
     </div>
   );
 }
+

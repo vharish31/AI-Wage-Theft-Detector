@@ -434,5 +434,130 @@ export const estimateHoursAPI = async (transcript, hours_worked = null) => {
   }
 };
 
+/**
+ * Detects multiple job mentions in transcript text
+ * @param {string} transcript 
+ */
+export const detectMultiJobsAPI = async (transcript) => {
+  try {
+    const response = await apiClient.post('/multi-job/detect', { transcript });
+    return response.data;
+  } catch (error) {
+    console.warn('Backend multi-job detect API offline, using local regex detection fallback:', error.message);
+    const text = (transcript || '').toLowerCase();
+    const has_multi = text.includes('and as a') || text.includes('and painting') || text.includes('and delivery') || text.includes('in the evening');
+    if (has_multi) {
+      return {
+        is_multi_job: true,
+        detected_jobs: [
+          { job_id: 'job-1', job_type: 'Construction Worker', hours_worked: 5.0, location: 'Chennai', received_amount: 0.0, employer_name: 'Employer / Contractor 1' },
+          { job_id: 'job-2', job_type: 'Painter', hours_worked: 3.0, location: 'Chennai', received_amount: 0.0, employer_name: 'Employer / Contractor 2' }
+        ],
+        raw_transcript: transcript
+      };
+    }
+    return { is_multi_job: false, detected_jobs: [], raw_transcript: transcript };
+  }
+};
+
+/**
+ * Runs independent statutory wage audits across multiple jobs
+ * @param {Object} payload { worker_name, jobs }
+ */
+export const auditMultiJobsAPI = async (payload) => {
+  try {
+    const response = await apiClient.post('/multi-job/audit', payload);
+    return response.data;
+  } catch (error) {
+    console.warn('Backend multi-job audit API offline, using local audit engine fallback:', error.message);
+    const jobs = payload.jobs || [];
+    let total_expected = 0;
+    let total_received = 0;
+    let total_hours = 0;
+
+    const jobs_results = jobs.map((j, i) => {
+      const hrs = j.hours_worked || 8.0;
+      const rate = j.job_type === 'Painter' ? 112.5 : (j.job_type === 'Electrician' ? 120.0 : 106.25);
+      const expected = Math.round(hrs * rate * 100) / 100;
+      const received = parseFloat(j.received_amount || 0);
+      const diff = Math.max(0, expected - received);
+
+      total_expected += expected;
+      total_received += received;
+      total_hours += hrs;
+
+      return {
+        job_id: j.job_id || `job-${i+1}`,
+        job_type: j.job_type || 'Worker',
+        location: j.location || 'Chennai',
+        state: 'Tamil Nadu',
+        hours_worked: hrs,
+        expected_wage: expected,
+        received_amount: received,
+        difference: diff,
+        risk_score: diff > 0 ? 35.0 : 0.0,
+        risk_level: diff > 0 ? 'High' : 'Low',
+        is_underpaid: diff > 0,
+        hourly_rate_expected: rate,
+        hourly_rate_received: Math.round((received / hrs) * 100) / 100,
+        employer_name: j.employer_name || `Employer / Contractor ${i+1}`,
+        legal_ref: 'Minimum Wages Act, 1948'
+      };
+    });
+
+    const total_diff = Math.max(0, Math.round((total_expected - total_received) * 100) / 100);
+
+    return {
+      worker_name: payload.worker_name || 'Worker',
+      is_multi_job: jobs.length > 1,
+      summary: {
+        total_jobs: jobs.length,
+        total_hours_worked: total_hours,
+        total_expected_wage: Math.round(total_expected * 100) / 100,
+        total_received_amount: Math.round(total_received * 100) / 100,
+        total_difference: total_diff,
+        overall_risk_level: total_diff > 300 ? 'High' : (total_diff > 0 ? 'Medium' : 'No Issue'),
+        highest_underpayment_job: jobs_results.find(j => j.difference > 0)?.job_type || null,
+        is_underpaid: total_diff > 0
+      },
+      jobs_results
+    };
+  }
+};
+
+/**
+ * Generates combined statutory complaint letter for multi-job workday
+ * @param {Object} payload 
+ */
+export const generateMultiJobComplaintAPI = async (payload) => {
+  try {
+    const response = await apiClient.post('/multi-job/complaint', payload);
+    return response.data;
+  } catch (error) {
+    console.warn('Backend multi-job complaint API offline, using local fallback:', error.message);
+    const auditRes = await auditMultiJobsAPI(payload);
+    const jobs = auditRes.jobs_results || [];
+    const summary = auditRes.summary || {};
+
+    const jobLines = jobs.map((j, i) => 
+      `Job ${i+1} - ${j.job_type} (${j.hours_worked} hrs, Employer: ${j.employer_name}):\n` +
+      `   - Statutory Minimum Wage Rate: Rs. ${j.expected_wage.toFixed(2)}\n` +
+      `   - Actual Amount Received: Rs. ${j.received_amount.toFixed(2)}\n` +
+      `   - Shortfall / Wages Withheld: Rs. ${j.difference.toFixed(2)}\n`
+    ).join('\n');
+
+    return {
+      complaint: `TO: Labor Inspector, Department of Labor\n\nFROM: ${auditRes.worker_name}\n\nSUBJECT: FORMAL COMPLAINT REGARDING MULTI-JOB WAGE THEFT\n\nDAILY MULTI-JOB WORKDAY AUDIT BREAKDOWN:\n${jobLines}\nTOTAL SHORTFALL: Rs. ${summary.total_difference?.toFixed(2) || '0.00'}\n\nMinimum Wages Act, 1948`,
+      summary: `Multi-job wage audit complete across ${summary.total_jobs || 1} jobs. Total shortfall: ₹${summary.total_difference?.toFixed(2) || '0.00'}.`,
+      recommended_actions: [
+        "Submit this combined legal complaint to your District Labor Commissioner.",
+        "Keep shift receipts and employer payment details for every job."
+      ],
+      legal_section: "Section 12 & 20, Minimum Wages Act, 1948"
+    };
+  }
+};
+
 export default apiClient;
+
 

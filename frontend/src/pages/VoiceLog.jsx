@@ -14,7 +14,8 @@ import LocationSelector from '../components/LocationSelector';
 import LocationReview from '../components/LocationReview';
 import HoursSelector from '../components/HoursSelector';
 import HoursEstimator from '../components/HoursEstimator';
-import { extractSpeechData, validateWorkDataAPI, normalizeJobAPI, validateLocationAPI } from '../services/api';
+import { extractSpeechData, validateWorkDataAPI, normalizeJobAPI, validateLocationAPI, detectMultiJobsAPI } from '../services/api';
+
 
 import { normalizeJobType } from '../utils/jobAliases';
 import { resolveLocationState } from '../utils/locationHelper';
@@ -69,6 +70,7 @@ export default function VoiceLog({ workData, setWorkData }) {
 
     try {
       const data = await extractSpeechData(finalTranscript);
+      const multiRes = await detectMultiJobsAPI(finalTranscript);
 
       await new Promise((r) => setTimeout(r, 500));
       setActiveStepIndex(2);
@@ -85,12 +87,17 @@ export default function VoiceLog({ workData, setWorkData }) {
         ...data,
         job_type: normalizedJob,
         location: loc,
-        hours_worked: hrs
+        hours_worked: hrs,
+        is_multi_job: multiRes.is_multi_job,
+        multi_jobs: multiRes.is_multi_job ? multiRes.detected_jobs : [
+          { job_id: 'job-1', job_type: normalizedJob || 'Painter', hours_worked: hrs || 8.0, location: loc || 'Chennai', received_amount: 0.0, employer_name: 'Employer 1' }
+        ]
       };
 
       setExtractedData(structuredData);
       setWorkData(structuredData);
       setJobValidationStep('review');
+
 
       // Check Location
       if (!loc) {

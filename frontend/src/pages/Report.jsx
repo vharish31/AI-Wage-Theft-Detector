@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import RiskMeter from '../components/RiskMeter';
 import WageTheftAnalysis from '../components/WageTheftAnalysis';
+import CombinedReport from '../components/CombinedReport';
 import { generateComplaintLetter, downloadPDFReport } from '../services/api';
+
 import { 
   AlertTriangle, 
   IndianRupee, 
@@ -105,29 +107,36 @@ export default function Report({ auditResult }) {
           </Link>
           <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
             <Scale className="w-8 h-8 text-cyan-400" />
-            Wage Theft Audit Report
+            {data.is_multi_job ? 'Multi-Job Daily Wage Theft Audit' : 'Wage Theft Audit Report'}
           </h1>
           <p className="text-slate-400 text-sm">
-            Official statutory evaluation report for {data.job_type} in {data.location}
+            {data.is_multi_job
+              ? `Combined multi-job evaluation report for ${data.worker_name || 'Worker'}`
+              : `Official statutory evaluation report for ${data.job_type} in ${data.location}`}
           </p>
         </div>
 
         {/* Action Buttons Header */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleDownloadPDF}
-            disabled={isDownloadingPDF}
-            className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all active:scale-95"
-          >
-            {isDownloadingPDF ? (
-              <Sparkles className="w-4 h-4 animate-spin" />
-            ) : (
+        {!data.is_multi_job && (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isDownloadingPDF}
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all cursor-pointer"
+            >
               <Download className="w-4 h-4" />
-            )}
-            Download PDF Report
-          </button>
-        </div>
+              {isDownloadingPDF ? 'Exporting PDF...' : 'Download PDF Report'}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Render Combined Multi-Job Report if multi-job workday */}
+      {data.is_multi_job ? (
+        <CombinedReport multiJobResult={data} />
+      ) : (
+        <>
+
 
       {/* WARNING BANNER */}
       {data.is_underpaid ? (
@@ -400,8 +409,11 @@ export default function Report({ auditResult }) {
         </div>
       )}
 
-
+        </>
+      )}
     </div>
   );
 }
+
+
 
