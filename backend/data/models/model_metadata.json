@@ -1,12 +1,15 @@
 {
-  "trained_at": "2026-07-25T18:12:00.699939+00:00",
-  "training_time_seconds": 1.27,
+  "trained_at": "2026-07-25T18:19:32.833380+00:00",
+  "training_time_seconds": 4.22,
   "dataset_summary": {
     "dataset_files": [
-      "dataset_part1.csv"
+      "dataset_part1.csv",
+      "dataset_part2.csv",
+      "dataset_part3.csv",
+      "dataset_part4.csv"
     ],
-    "total_files": 1,
-    "total_records": 5000,
+    "total_files": 4,
+    "total_records": 20000,
     "columns": [
       "Employee_ID",
       "State",
@@ -57,63 +60,78 @@
         "filename": "dataset_part1.csv",
         "path": "D:\\Hackathon Projects\\AI Wage Theft Detector\\datasets\\dataset_part1.csv",
         "rows": 5000
+      },
+      {
+        "filename": "dataset_part2.csv",
+        "path": "D:\\Hackathon Projects\\AI Wage Theft Detector\\datasets\\dataset_part2.csv",
+        "rows": 5000
+      },
+      {
+        "filename": "dataset_part3.csv",
+        "path": "D:\\Hackathon Projects\\AI Wage Theft Detector\\datasets\\dataset_part3.csv",
+        "rows": 5000
+      },
+      {
+        "filename": "dataset_part4.csv",
+        "path": "D:\\Hackathon Projects\\AI Wage Theft Detector\\datasets\\dataset_part4.csv",
+        "rows": 5000
       }
     ]
   },
   "metrics": {
     "wage_theft_classifier": {
-      "accuracy": 0.942,
-      "f1_score": 0.9393
+      "accuracy": 0.9898,
+      "f1_score": 0.9896
     },
     "risk_score_regressor": {
       "mae": 0.0,
       "r2_score": 1.0
     },
     "theft_type_classifier": {
-      "accuracy": 0.942,
-      "f1_score_macro": 0.8941
+      "accuracy": 0.9898,
+      "f1_score_macro": 0.9861
     }
   },
   "top_features": [
     {
       "feature": "Minimum_Wage_Violation",
-      "importance": 0.2061
-    },
-    {
-      "feature": "Overtime_Violation",
-      "importance": 0.1387
+      "importance": 0.2209
     },
     {
       "feature": "Overtime_Paid",
-      "importance": 0.1368
+      "importance": 0.1486
     },
     {
-      "feature": "Illegal_Deductions",
-      "importance": 0.1039
-    },
-    {
-      "feature": "Illegal_Deduction_Violation",
-      "importance": 0.0914
+      "feature": "Overtime_Violation",
+      "importance": 0.1443
     },
     {
       "feature": "Salary_Delay_Days",
-      "importance": 0.0734
+      "importance": 0.1361
+    },
+    {
+      "feature": "Illegal_Deductions",
+      "importance": 0.099
     },
     {
       "feature": "Late_Payment",
-      "importance": 0.0577
+      "importance": 0.0986
+    },
+    {
+      "feature": "Illegal_Deduction_Violation",
+      "importance": 0.0838
     },
     {
       "feature": "Actual_Salary",
-      "importance": 0.0276
+      "importance": 0.0128
     },
     {
       "feature": "Expected_Salary",
-      "importance": 0.0218
+      "importance": 0.0074
     },
     {
       "feature": "Actual_Hourly_Wage",
-      "importance": 0.0139
+      "importance": 0.007
     }
   ],
   "model_status": "Ready",
