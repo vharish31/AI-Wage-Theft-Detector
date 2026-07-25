@@ -36,11 +36,11 @@ TARGET_TYPE = "Theft_Type"
 
 
 def get_all_dataset_files() -> List[str]:
-    """Finds all dataset_part*.csv files across designated directories, deduplicated by filename."""
+    """Finds all .csv dataset files across designated directories, deduplicated by filename."""
     files_dict = {}
     for d in DATASET_DIRS:
         if os.path.exists(d):
-            pattern = os.path.join(d, "dataset_part*.csv")
+            pattern = os.path.join(d, "*.csv")
             for filepath in glob.glob(pattern):
                 filename = os.path.basename(filepath)
                 if filename not in files_dict:
@@ -48,25 +48,121 @@ def get_all_dataset_files() -> List[str]:
     return [files_dict[k] for k in sorted(files_dict.keys())]
 
 
+def harmonize_dataframe(df: pd.DataFrame, filename: str) -> pd.DataFrame:
+    """Harmonizes non-standard CSVs (e.g. payroll datasets) into the standard Wage Theft schema."""
+    df_clean = df.copy()
+
+    # Standard dataset part already matching schema
+    if TARGET_BINARY in df_clean.columns and TARGET_RISK in df_clean.columns:
+        return df_clean
+
+    logger.info(f"Harmonizing non-standard schema for dataset file '{filename}'...")
+
+    # Payroll CSV Harmonization (e.g. train-test-payroll.csv, payroll.csv, processed-payroll.csv)
+    if "REGULAR_PAY" in df_clean.columns:
+        reg_pay = pd.to_numeric(df_clean["REGULAR_PAY"], errors='coerce').fillna(0.0)
+        ot_pay = pd.to_numeric(df_clean.get("OVERTIME_PAY", 0), errors='coerce').fillna(0.0)
+        other_pay = pd.to_numeric(df_clean.get("ALL_OTHER_PAY", 0), errors='coerce').fillna(0.0)
+        benefit_pay = pd.to_numeric(df_clean.get("BENEFIT_PAY", 0), errors='coerce').fillna(0.0)
+
+        df_clean["Actual_Salary"] = reg_pay + ot_pay + other_pay
+        
+        # Determine benchmark expected salary by job class/title
+        if "JOB_CLASS_PGRADE" in df_clean.columns:
+            grp = df_clean.groupby("JOB_CLASS_PGRADE")["Actual_Salary"].transform("median")
+            df_clean["Expected_Salary"] = grp.fillna(df_clean["Actual_Salary"].median())
+        else:
+            df_clean["Expected_Salary"] = df_clean["Actual_Salary"].median()
+
+        # Risk score calculation
+        exp_sal = df_clean["Expected_Salary"]
+        act_sal = df_clean["Actual_Salary"]
+        diff = exp_sal - act_sal
+        
+        risk_scores = np.where(exp_sal > 0, np.maximum(0, (diff / exp_sal) * 100.0), 0.0)
+        df_clean[TARGET_RISK] = np.clip(risk_scores, 0.0, 100.0)
+        df_clean[TARGET_BINARY] = np.where(df_clean[TARGET_RISK] >= 15.0, "Yes", "No")
+
+        def map_theft_type(row):
+            if row[TARGET_RISK] < 15.0:
+                return "None"
+            if row.get("OVERTIME_PAY", 0) == 0:
+                return "Unpaid Overtime"
+            return "Minimum Wage Violation"
+
+        df_clean[TARGET_TYPE] = df_clean.apply(map_theft_type, axis=1)
+
+        # Standard features mapping
+        df_clean["Occupation"] = df_clean["JOB_TITLE"].astype(str) if "JOB_TITLE" in df_clean.columns else "Payroll Employee"
+        df_clean["State"] = "State Jurisdiction"
+        df_clean["District"] = "District Jurisdiction"
+        df_clean["Industry"] = "Public / Corporate Sector"
+        df_clean["Skill_Level"] = "Skilled"
+        df_clean["Employment_Type"] = df_clean["EMPLOYMENT_TYPE"].astype(str) if "EMPLOYMENT_TYPE" in df_clean.columns else "Full Time"
+        df_clean["Gender"] = np.where(df_clean.get("GENDER", 0) == 1, "Female", "Male")
+
+        df_clean["Age"] = 35
+        df_clean["Experience_Years"] = 8
+        df_clean["Working_Days"] = 26
+        df_clean["Hours_Per_Day"] = 8.0
+        df_clean["Total_Hours_Worked"] = 208.0
+        df_clean["Overtime_Hours"] = np.where(ot_pay > 0, 15.0, 0.0)
+        df_clean["Weekend_Hours"] = 0.0
+        df_clean["Night_Shift"] = "No"
+        df_clean["Minimum_Hourly_Wage"] = (df_clean["Expected_Salary"] / 208.0).round(2)
+        df_clean["Actual_Hourly_Wage"] = (df_clean["Actual_Salary"] / 208.0).round(2)
+        df_clean["Bonus"] = other_pay
+        df_clean["Legal_Deductions"] = benefit_pay
+        df_clean["Illegal_Deductions"] = np.where(df_clean[TARGET_RISK] >= 15.0, diff.clip(lower=0), 0.0)
+        df_clean["PF_Deduction"] = 0.0
+        df_clean["ESI_Deduction"] = 0.0
+        df_clean["Attendance_Percentage"] = 100.0
+        df_clean["Leaves_Taken"] = 0
+        df_clean["Contract_Type"] = "Monthly"
+        df_clean["Company_Size"] = "Large"
+        df_clean["Company_Type"] = "Corporate"
+        df_clean["Payslip_Provided"] = "Yes"
+        df_clean["Bank_Payment"] = "Yes"
+        df_clean["Overtime_Paid"] = np.where(ot_pay > 0, "Yes", "No")
+        df_clean["Minimum_Wage_Violation"] = np.where(act_sal < exp_sal * 0.85, "Yes", "No")
+        df_clean["Overtime_Violation"] = np.where((ot_pay == 0) & (df_clean[TARGET_RISK] > 15), "Yes", "No")
+        df_clean["Illegal_Deduction_Violation"] = np.where(df_clean[TARGET_RISK] > 25, "Yes", "No")
+        df_clean["Late_Payment"] = "No"
+        df_clean["Salary_Delay_Days"] = 0
+        df_clean["Complaint_History"] = "No"
+        df_clean["Union_Member"] = "No"
+
+    return df_clean
+
 
 def load_combined_dataset() -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """Loads and concatenates all discovered dataset parts."""
+    """Loads and concatenates all discovered dataset files."""
     files = get_all_dataset_files()
     if not files:
-        raise FileNotFoundError(f"No dataset files matching 'dataset_part*.csv' found in {DATASET_DIRS}")
+        raise FileNotFoundError(f"No CSV dataset files found in {DATASET_DIRS}")
 
     dfs = []
     file_info = []
     for f in files:
+        filename = os.path.basename(f)
         try:
             df_part = pd.read_csv(f)
-            dfs.append(df_part)
+
+            # Sample large datasets (>20,000 rows) to maintain fast training (<5s)
+            original_len = len(df_part)
+            if original_len > 20000:
+                df_part = df_part.sample(n=20000, random_state=42)
+
+            df_harmonized = harmonize_dataframe(df_part, filename)
+            dfs.append(df_harmonized)
+
             file_info.append({
-                "filename": os.path.basename(f),
+                "filename": filename,
                 "path": f,
-                "rows": len(df_part)
+                "rows": len(df_harmonized),
+                "original_rows": original_len
             })
-            logger.info(f"Loaded dataset file '{os.path.basename(f)}' with {len(df_part)} rows.")
+            logger.info(f"Loaded dataset '{filename}' ({original_len} rows, sampled {len(df_harmonized)} rows).")
         except Exception as e:
             logger.error(f"Failed to read dataset file '{f}': {str(e)}")
 
