@@ -328,18 +328,66 @@ export default function Report({ auditResult }) {
           )}
 
         </div>
-      ) : (
-        <div className="glass-card rounded-2xl p-6 sm:p-8 border border-emerald-500/30 bg-emerald-950/20 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-            <CheckCircle2 className="w-6 h-6" />
+        <div className="glass-card rounded-2xl p-6 sm:p-8 border border-emerald-500/40 bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 shadow-2xl relative overflow-hidden space-y-6">
+          {/* Decorative Background Glow */}
+          <div className="absolute -right-16 -top-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-emerald-500/20 pb-5">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/10">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-xs font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    Full Compliance Verified
+                  </span>
+                </div>
+                <h2 className="text-2xl font-black text-white tracking-tight">
+                  No Legal Action or Complaint Needed
+                </h2>
+              </div>
+            </div>
+            
+            <div className="px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              Minimum Wage Met
+            </div>
           </div>
-          <div className="space-y-1">
-            <h2 className="text-xl font-bold text-emerald-400">
-              No Complaint Letter Required
-            </h2>
-            <p className="text-sm text-slate-200 leading-relaxed">
-              Your reported payout of <span className="font-extrabold text-white">₹{data.received_amount.toFixed(2)}</span> meets or exceeds the statutory minimum wage benchmark of <span className="font-extrabold text-white">₹{data.expected_wage.toFixed(2)}</span>. Because no wage underpayment occurred, generating a legal complaint letter is not required.
-            </p>
+
+          <p className="text-slate-200 text-sm leading-relaxed">
+            Great news! Your received payout of <span className="font-extrabold text-emerald-300">₹{data.received_amount.toFixed(2)}</span> meets or exceeds the official state statutory minimum wage benchmark of <span className="font-bold text-white">₹{data.expected_wage.toFixed(2)}</span> for <span className="text-cyan-300 font-semibold">{data.job_type}</span> in <span className="text-cyan-300 font-semibold">{data.location}</span>. Because no wage underpayment occurred, filing a legal complaint is not required.
+          </p>
+
+          {/* Financial Breakdown Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Your Actual Pay</span>
+              <span className="text-xl font-extrabold text-emerald-400 flex items-center gap-0.5">
+                <IndianRupee className="w-4 h-4" />{data.received_amount.toFixed(2)}
+              </span>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Statutory Wage Benchmark</span>
+              <span className="text-xl font-extrabold text-slate-200 flex items-center gap-0.5">
+                <IndianRupee className="w-4 h-4" />{data.expected_wage.toFixed(2)}
+              </span>
+            </div>
+            <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 space-y-1">
+              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider block">Surplus Earnings</span>
+              <span className="text-xl font-extrabold text-emerald-300 flex items-center gap-0.5">
+                +<IndianRupee className="w-4 h-4" />{Math.max(0, data.received_amount - data.expected_wage).toFixed(2)}
+              </span>
+            </div>
+          </div>
+
+          {/* Record Keeping Recommendation Box */}
+          <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex items-start gap-3 text-xs text-slate-300">
+            <BookOpen className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold text-white block mb-0.5">Worker Record Keeping Tip</span>
+              Keep your shift receipts and bank payment records safe. If your work hours or wage rates change in future shifts, you can audit them anytime here.
+            </div>
           </div>
         </div>
       )}
@@ -348,3 +396,4 @@ export default function Report({ auditResult }) {
     </div>
   );
 }
+
