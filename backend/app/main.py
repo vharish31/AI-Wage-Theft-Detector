@@ -4,14 +4,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from app.routes import speech, detect, complaint, wage_theft, validate
+from app.routes import speech, detect, complaint, wage_theft, validate, ml_routes
 
 load_dotenv()
 
 app = FastAPI(
     title="AI Wage Theft Detector API",
-    description="Backend service providing voice extraction, wage benchmarks, underpayment risk scoring, AI Wage Theft Analysis Engine, and legal complaint generation.",
-    version="1.0.0"
+    description="Backend service providing voice extraction, wage benchmarks, underpayment risk scoring, AI Wage Theft Analysis Engine, ML model predictions, and legal complaint generation.",
+    version="1.1.0"
 )
 
 # Enable CORS for frontend web integration
@@ -29,6 +29,8 @@ app.include_router(detect.router)
 app.include_router(complaint.router)
 app.include_router(wage_theft.router)
 app.include_router(validate.router)
+app.include_router(ml_routes.router)
+
 
 
 @app.get("/", tags=["Health Check"])

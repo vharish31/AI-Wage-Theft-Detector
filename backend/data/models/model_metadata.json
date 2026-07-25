@@ -1,0 +1,121 @@
+{
+  "trained_at": "2026-07-25T18:12:00.699939+00:00",
+  "training_time_seconds": 1.27,
+  "dataset_summary": {
+    "dataset_files": [
+      "dataset_part1.csv"
+    ],
+    "total_files": 1,
+    "total_records": 5000,
+    "columns": [
+      "Employee_ID",
+      "State",
+      "District",
+      "Occupation",
+      "Industry",
+      "Skill_Level",
+      "Employment_Type",
+      "Gender",
+      "Age",
+      "Experience_Years",
+      "Working_Days",
+      "Hours_Per_Day",
+      "Total_Hours_Worked",
+      "Overtime_Hours",
+      "Weekend_Hours",
+      "Night_Shift",
+      "Minimum_Hourly_Wage",
+      "Actual_Hourly_Wage",
+      "Expected_Salary",
+      "Actual_Salary",
+      "Bonus",
+      "Legal_Deductions",
+      "Illegal_Deductions",
+      "PF_Deduction",
+      "ESI_Deduction",
+      "Attendance_Percentage",
+      "Leaves_Taken",
+      "Contract_Type",
+      "Company_Size",
+      "Company_Type",
+      "Payslip_Provided",
+      "Bank_Payment",
+      "Overtime_Paid",
+      "Minimum_Wage_Violation",
+      "Overtime_Violation",
+      "Illegal_Deduction_Violation",
+      "Late_Payment",
+      "Salary_Delay_Days",
+      "Complaint_History",
+      "Union_Member",
+      "Risk_Score",
+      "Wage_Theft",
+      "Theft_Type"
+    ],
+    "file_details": [
+      {
+        "filename": "dataset_part1.csv",
+        "path": "D:\\Hackathon Projects\\AI Wage Theft Detector\\datasets\\dataset_part1.csv",
+        "rows": 5000
+      }
+    ]
+  },
+  "metrics": {
+    "wage_theft_classifier": {
+      "accuracy": 0.942,
+      "f1_score": 0.9393
+    },
+    "risk_score_regressor": {
+      "mae": 0.0,
+      "r2_score": 1.0
+    },
+    "theft_type_classifier": {
+      "accuracy": 0.942,
+      "f1_score_macro": 0.8941
+    }
+  },
+  "top_features": [
+    {
+      "feature": "Minimum_Wage_Violation",
+      "importance": 0.2061
+    },
+    {
+      "feature": "Overtime_Violation",
+      "importance": 0.1387
+    },
+    {
+      "feature": "Overtime_Paid",
+      "importance": 0.1368
+    },
+    {
+      "feature": "Illegal_Deductions",
+      "importance": 0.1039
+    },
+    {
+      "feature": "Illegal_Deduction_Violation",
+      "importance": 0.0914
+    },
+    {
+      "feature": "Salary_Delay_Days",
+      "importance": 0.0734
+    },
+    {
+      "feature": "Late_Payment",
+      "importance": 0.0577
+    },
+    {
+      "feature": "Actual_Salary",
+      "importance": 0.0276
+    },
+    {
+      "feature": "Expected_Salary",
+      "importance": 0.0218
+    },
+    {
+      "feature": "Actual_Hourly_Wage",
+      "importance": 0.0139
+    }
+  ],
+  "model_status": "Ready",
+  "bundle_file": "wage_theft_pipeline.joblib"
+}
