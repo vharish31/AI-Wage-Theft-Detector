@@ -1,0 +1,28 @@
+[
+  {
+    "id": "usr-admin-01",
+    "name": "Administrator",
+    "email": "admin@wagedetector.com",
+    "password_hash": "pbkdf2:sha256:10000$admin_salt$2b453a29db7198d009b85c13b708cf3ff9543e3c0422c54d7efd65a88c27cf28",
+    "raw_password_demo": "Admin@123",
+    "role": "ADMIN",
+    "phone": "+91 98765 43210",
+    "state": "Tamil Nadu",
+    "status": "ACTIVE",
+    "created_at": "2026-07-01T08:00:00Z",
+    "last_login": "2026-07-26T09:30:00Z"
+  },
+  {
+    "id": "usr-worker-01",
+    "name": "Harish",
+    "email": "user@wagedetector.com",
+    "password_hash": "pbkdf2:sha256:10000$user_salt$04825d19a2e633d7b8eb512b9ffc2bc3c4b9015eb6f8f5ab1a7509d3df3fbcf2",
+    "raw_password_demo": "User@123",
+    "role": "USER",
+    "phone": "+91 91234 56789",
+    "state": "Tamil Nadu",
+    "status": "ACTIVE",
+    "created_at": "2026-07-05T10:15:00Z",
+    "last_login": "2026-07-26T09:40:00Z"
+  }
+]

@@ -14,12 +14,12 @@ import LocationSelector from '../components/LocationSelector';
 import LocationReview from '../components/LocationReview';
 import HoursSelector from '../components/HoursSelector';
 import HoursEstimator from '../components/HoursEstimator';
-import { extractSpeechData, validateWorkDataAPI, normalizeJobAPI, validateLocationAPI, detectMultiJobsAPI } from '../services/api';
-
+import { extractSpeechData, validateWorkDataAPI, normalizeJobAPI, validateLocationAPI, detectMultiJobsAPI, detectGigPlatformAPI } from '../services/api';
+import { detectGigDetailsFromTranscript } from '../utils/gigDetector';
 
 import { normalizeJobType } from '../utils/jobAliases';
 import { resolveLocationState } from '../utils/locationHelper';
-import { Sparkles, ArrowRight, CheckCircle2, RefreshCw, ShieldCheck, MapPin, Clock } from 'lucide-react';
+import { Sparkles, ArrowRight, CheckCircle2, RefreshCw, ShieldCheck, MapPin, Clock, ShoppingBag } from 'lucide-react';
 
 export default function VoiceLog({ workData, setWorkData }) {
   const [rawTranscript, setRawTranscript] = useState(null);
@@ -71,6 +71,7 @@ export default function VoiceLog({ workData, setWorkData }) {
     try {
       const data = await extractSpeechData(finalTranscript);
       const multiRes = await detectMultiJobsAPI(finalTranscript);
+      const gigRes = await detectGigPlatformAPI(finalTranscript);
 
       await new Promise((r) => setTimeout(r, 500));
       setActiveStepIndex(2);
@@ -85,13 +86,20 @@ export default function VoiceLog({ workData, setWorkData }) {
 
       const structuredData = {
         ...data,
-        job_type: normalizedJob,
+        job_type: gigRes?.is_gig ? 'Delivery Partner' : normalizedJob,
         location: loc,
         hours_worked: hrs,
         is_multi_job: multiRes.is_multi_job,
         multi_jobs: multiRes.is_multi_job ? multiRes.detected_jobs : [
           { job_id: 'job-1', job_type: normalizedJob || 'Painter', hours_worked: hrs || 8.0, location: loc || 'Chennai', received_amount: 0.0, employer_name: 'Employer 1' }
-        ]
+        ],
+        employment_type: gigRes?.is_gig ? 'gig' : 'hourly',
+        is_gig: Boolean(gigRes?.is_gig),
+        gig_platform: gigRes?.platform || 'Swiggy',
+        gig_task_type: gigRes?.task_type || 'Delivery',
+        gig_completed_tasks: gigRes?.completed_tasks || null,
+        gig_rate_per_task: gigRes?.rate_per_task || null,
+        gig_actual_payment: gigRes?.actual_payment || null
       };
 
       setExtractedData(structuredData);

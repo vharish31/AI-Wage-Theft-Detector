@@ -558,6 +558,128 @@ export const generateMultiJobComplaintAPI = async (payload) => {
   }
 };
 
+
+/**
+ * Detect gig platform and tasks from transcript
+ * @param {string} transcript 
+ */
+export const detectGigPlatformAPI = async (transcript) => {
+  try {
+    const response = await apiClient.post('/api/gig/detect-platform', { transcript });
+    return response.data;
+  } catch (error) {
+    console.warn('Backend gig detect API offline, using local detection fallback:', error.message);
+    const { detectGigDetailsFromTranscript } = await import('../utils/gigDetector');
+    const details = detectGigDetailsFromTranscript(transcript);
+    return {
+      is_gig: details.isGig,
+      platform: details.platform,
+      task_type: details.taskType,
+      completed_tasks: details.completedTasks,
+      rate_per_task: details.ratePerTask,
+      actual_payment: details.actualPayment,
+      confidence: details.isGig ? 0.95 : 0.50,
+      raw_transcript: transcript
+    };
+  }
+};
+
+/**
+ * Perform gig worker per-order audit
+ * @param {Object} payload 
+ */
+export const auditGigWorkerAPI = async (payload) => {
+  try {
+    const response = await apiClient.post('/api/gig/audit', payload);
+    return response.data;
+  } catch (error) {
+    console.warn('Backend gig audit API offline, using local calculator fallback:', error.message);
+    const { calculateGigAudit } = await import('../utils/gigCalculator');
+    return calculateGigAudit({
+      workerName: payload.worker_name,
+      platform: payload.platform,
+      customPlatform: payload.custom_platform,
+      taskType: payload.task_type,
+      completedTasks: payload.completed_tasks,
+      ratePerTask: payload.rate_per_task,
+      actualPayment: payload.actual_payment,
+      workingHours: payload.working_hours,
+      tips: payload.tips,
+      peakHourBonus: payload.peak_hour_bonus,
+      rainBonus: payload.rain_bonus,
+      festivalBonus: payload.festival_bonus,
+      referralBonus: payload.referral_bonus,
+      nightIncentive: payload.night_incentive,
+      otherBonuses: payload.other_bonuses,
+      fuelCost: payload.fuel_cost,
+      platformCommission: payload.platform_commission,
+      latePenalty: payload.late_penalty,
+      cancellationFee: payload.cancellation_fee,
+      insuranceDeduction: payload.insurance_deduction,
+      equipmentRent: payload.equipment_rent,
+      otherDeductions: payload.other_deductions
+    });
+  }
+};
+
+/**
+ * Generate formal complaint letter for gig workers
+ * @param {Object} payload 
+ */
+export const generateGigComplaintAPI = async (payload) => {
+  try {
+    const response = await apiClient.post('/api/gig/complaint', payload);
+    return response.data;
+  } catch (error) {
+    console.warn('Backend gig complaint API offline, using local generator fallback:', error.message);
+    const worker = payload.worker_name || 'Gig Worker';
+    const plat = payload.platform || 'Gig Platform';
+    const diff = Math.max(0, (payload.expected_net || 0) - (payload.actual_received || 0));
+    const pct = payload.expected_net > 0 ? ((diff / payload.expected_net) * 100).toFixed(1) : '0';
+
+    const complaintText = `TO:
+The Regional Labor Commissioner / Gig Worker Board
+Department of Labor, ${payload.location || 'Chennai'}
+
+FROM:
+Complainant: ${worker}
+Platform: ${plat} (${payload.completed_tasks || 0} ${payload.task_type || 'Task'}s)
+
+SUBJECT: FORMAL COMPLAINT REGARDING UNLAWFUL PER-ORDER DEDUCTIONS AND WAGE SHORTFALL
+
+Respected Sir/Madam,
+
+I am writing to log a legal complaint regarding payout shortfall on ${plat}.
+
+FACTS OF WAGE UNDERPAYMENT:
+1. Gig Platform: ${plat}
+2. Completed Tasks: ${payload.completed_tasks || 0} (${payload.task_type || 'Task'})
+3. Rate Per Task: ₹${payload.rate_per_task || 0}
+4. Net Expected Payout: ₹${(payload.expected_net || 0).toFixed(2)}
+5. Actual Amount Paid: ₹${(payload.actual_received || 0).toFixed(2)}
+6. Shortfall / Wages Withheld: ₹${diff.toFixed(2)} (${pct}% underpayment)
+
+STATUTORY GROUNDS:
+This underpayment violates provisions under Section 114 of the Code on Social Security, 2020 (Gig Workers Welfare) and Section 12 of the Minimum Wages Act.
+
+Sincerely,
+${worker}
+Date: ${new Date().toLocaleDateString('en-IN')}`;
+
+    return {
+      complaint: complaintText,
+      summary: `Gig wage underpayment logged for ${plat} (${payload.completed_tasks} ${payload.task_type}s). Shortfall: ₹${diff.toFixed(2)}.`,
+      recommended_actions: [
+        "Submit this formal grievance to your state Gig Workers Board.",
+        "File a complaint through CPGRAMS portal.",
+        "Keep digital order receipt logs and bank statement screenshots."
+      ],
+      legal_section: "Code on Social Security, 2020 (Gig Workers Protections)"
+    };
+  }
+};
+
 export default apiClient;
+
 
 

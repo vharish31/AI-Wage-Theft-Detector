@@ -1,64 +1,137 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import UserRoute from './components/UserRoute';
+import AdminRoute from './components/AdminRoute';
+import LoadingScreen from './components/LoadingScreen';
+
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
+
+import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import Unauthorized from './pages/Unauthorized';
+import UserDashboard from './pages/UserDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import Profile from './pages/Profile';
 import VoiceLog from './pages/VoiceLog';
 import Verification from './pages/Verification';
 import Report from './pages/Report';
 
-export default function App() {
-  const [hasStarted, setHasStarted] = useState(false);
+function RootRedirect() {
+  const { isAuthenticated, role, isInitializing } = useAuth();
+
+  if (isInitializing) {
+    return <LoadingScreen message="Initializing session..." />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role === 'ADMIN') {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return <Navigate to="/dashboard" replace />;
+}
+
+function AppContent() {
+  const { isInitializing } = useAuth();
   const [workData, setWorkData] = useState(null);
   const [auditResult, setAuditResult] = useState(null);
 
-  const isStep1Unlocked = Boolean(hasStarted || workData);
-  const isStep1Complete = Boolean(workData && workData.job_type && workData.hours_worked && workData.location);
-  const isStep2Complete = Boolean(auditResult);
+  if (isInitializing) {
+    return <LoadingScreen message="Verifying authentication credentials..." />;
+  }
 
   return (
     <Router>
       <div className="min-h-screen flex flex-col justify-between bg-[#0b1329] text-slate-100 selection:bg-cyan-500 selection:text-slate-950">
         <div>
-          <Navbar hasStarted={hasStarted} workData={workData} auditResult={auditResult} />
+          <Navbar workData={workData} auditResult={auditResult} />
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Routes>
-              <Route path="/" element={<Home onStartDetection={() => setHasStarted(true)} />} />
+              {/* DEFAULT ROOT LANDING ROUTE REDIRECT */}
+              <Route path="/" element={<RootRedirect />} />
+
+              {/* PUBLIC ENTRY ROUTES */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
+
+              {/* PROTECTED DASHBOARDS & PROFILE */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  <UserRoute>
+                    <UserDashboard />
+                  </UserRoute>
+                } 
+              />
+              
+              <Route 
+                path="/admin" 
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                } 
+              />
+
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+
+              {/* PROTECTED WORKFLOW ROUTES */}
               <Route 
                 path="/voice-log" 
                 element={
-                  isStep1Unlocked ? (
+                  <ProtectedRoute>
                     <VoiceLog workData={workData} setWorkData={setWorkData} />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
+                  </ProtectedRoute>
                 } 
               />
+              
               <Route 
                 path="/verification" 
                 element={
-                  isStep1Complete ? (
+                  <ProtectedRoute>
                     <Verification workData={workData} setAuditResult={setAuditResult} />
-                  ) : (
-                    <Navigate to={isStep1Unlocked ? "/voice-log" : "/"} replace />
-                  )
+                  </ProtectedRoute>
                 } 
               />
+              
               <Route 
                 path="/report" 
                 element={
-                  isStep2Complete ? (
+                  <ProtectedRoute>
                     <Report auditResult={auditResult} />
-                  ) : (
-                    <Navigate to={isStep1Complete ? "/verification" : (isStep1Unlocked ? "/voice-log" : "/")} replace />
-                  )
+                  </ProtectedRoute>
                 } 
               />
+
+              {/* CATCH-ALL FALLBACK ROUTE */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </main>
         </div>
         <Footer />
       </div>
     </Router>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

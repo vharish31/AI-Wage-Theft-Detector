@@ -4,14 +4,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from app.routes import speech, detect, complaint, wage_theft, validate, ml_routes, hours, multi_job
+from app.routes import speech, detect, complaint, wage_theft, validate, ml_routes, hours, multi_job, gig_routes, admin_routes
+from app.auth import auth_routes
 
 load_dotenv()
 
 app = FastAPI(
     title="AI Wage Theft Detector API",
-    description="Backend service providing voice extraction, wage benchmarks, underpayment risk scoring, AI Wage Theft Analysis Engine, ML model predictions, smart hours estimation, multi-job workday support, and legal complaint generation.",
-    version="1.3.0"
+    description="Backend service providing voice extraction, wage benchmarks, underpayment risk scoring, AI Wage Theft Analysis Engine, ML model predictions, smart hours estimation, multi-job workday support, gig worker per-order support, role-based authentication, and legal complaint generation.",
+    version="2.0.0"
 )
 
 # Enable CORS for frontend web integration
@@ -32,6 +33,9 @@ app.include_router(validate.router)
 app.include_router(ml_routes.router)
 app.include_router(hours.router)
 app.include_router(multi_job.router)
+app.include_router(gig_routes.router)
+app.include_router(auth_routes.router)
+app.include_router(admin_routes.router)
 
 
 
