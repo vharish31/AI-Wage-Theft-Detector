@@ -203,16 +203,21 @@ I am writing to formally log a legal complaint regarding wage underpayment.
 
 FACTS OF THE CASE:
 1. Job Role: ${payload.job_type}
-2. Statutory Benchmark Wage: ₹${expected.toFixed(2)}
-3. Actual Amount Received: ₹${received.toFixed(2)}
-4. Total Wages Withheld: ₹${diff.toFixed(2)} (${pct}% underpayment)
+2. Statutory Minimum Wage: ₹${expected.toFixed(2)}
+3. Base Wage Paid: ₹${received.toFixed(2)}
+4. Bonuses Paid: ₹${payload.compensation?.totalBonuses || 0.00}
+5. Allowances Paid: ₹${payload.compensation?.totalAllowances || 0.00}
+6. Tips / Commissions: ₹${payload.compensation?.totalTips || 0.00}
+7. Total Package Compensation: ₹${payload.compensation?.totalCompensation || received.toFixed(2)}
+8. Base Wage Shortfall: ₹${diff.toFixed(2)} (${pct}% underpayment)
 
-STATUTORY GROUNDS:
-This underpayment violates Section 12 of the Minimum Wages Act, 1948, which prohibits employers from paying less than the statutory rate.
+STATUTORY GROUNDS & LEGAL EVIDENCE:
+This underpayment violates Section 12 of the Minimum Wages Act, 1948 and Section 6 of the Code on Wages, 2019 read with Code on Wages (Central) Rules, 2026. Under Indian labor law, employer bonuses, allowances, and tips are additional compensation and cannot legally compensate for or substitute a shortfall in the statutory minimum base wage.
 
 PRAYER FOR RELIEF:
-1. Order immediate payout of balance ₹${diff.toFixed(2)}.
+1. Order immediate recovery and payout of withheld statutory base wage balance ₹${diff.toFixed(2)}.
 2. Direct contractor/employer to pay statutory penal interest as per Section 20 of the Act.
+3. Order employer to maintain separate registers for base wage, bonuses, and allowances under Code on Wages, 2019.
 
 Sincerely,
 ${payload.worker_name || 'Worker'}
@@ -220,13 +225,13 @@ Date: ${new Date().toLocaleDateString('en-IN')}`;
 
     return {
       complaint: letterText,
-      summary: `Wage underpayment of ₹${diff.toFixed(2)} detected for ${payload.job_type} in ${payload.location}.`,
+      summary: `Wage underpayment of ₹${diff.toFixed(2)} detected on Base Wage for ${payload.job_type} in ${payload.location}. Bonuses cannot replace statutory minimum wage.`,
       recommended_actions: [
-        'File this complaint with your District Labor Commissioner.',
+        'File this complaint with your District Labor Commissioner / Labor Inspector.',
         'Contact free legal services authority (DLSA).',
-        'Preserve daily attendance and payment receipts.'
+        'Preserve daily attendance logs, pay slips, and bonus records.'
       ],
-      legal_section: 'Section 12, Minimum Wages Act, 1948'
+      legal_section: 'Code on Wages, 2019 & Minimum Wages Act, 1948'
     };
   }
 };

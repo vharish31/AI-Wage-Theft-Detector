@@ -36,36 +36,44 @@ export default function UserDashboard() {
       </div>
 
       {/* OVERVIEW STAT CARDS */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">Today's Work Logs</span>
-          <div className="text-2xl font-black text-white flex items-center gap-2">
-            <Clock className="w-5 h-5 text-cyan-400" /> 2 Shifts
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Today's Work Logs</span>
+          <div className="text-xl font-black text-white flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-cyan-400" /> 2 Shifts
           </div>
-          <p className="text-[10px] text-slate-500">8.0 hrs recorded today</p>
+          <p className="text-[10px] text-slate-500">8.0 hrs recorded</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 block">Pending Verification</span>
-          <div className="text-2xl font-black text-amber-300 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-400" /> 1 Report
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-amber-500/30 space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">Bonuses & Allowances</span>
+          <div className="text-xl font-black text-amber-300 flex items-center gap-1 font-mono">
+            <IndianRupee className="w-4 h-4" /> 450.00
           </div>
-          <p className="text-[10px] text-slate-500">Awaiting payout entry</p>
+          <p className="text-[10px] text-amber-400/80">Attendance & Travel</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-rose-500/30 bg-rose-950/10 space-y-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 block">Total Wage Shortfall</span>
-          <div className="text-2xl font-black text-rose-400 flex items-center gap-1 font-mono">
-            <IndianRupee className="w-5 h-5" /> 455.00
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-rose-500/30 bg-rose-950/10 space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 block">Base Wage Shortfall</span>
+          <div className="text-xl font-black text-rose-400 flex items-center gap-1 font-mono">
+            <IndianRupee className="w-4 h-4" /> 455.00
           </div>
-          <p className="text-[10px] text-slate-400">Unpaid wages detected</p>
+          <p className="text-[10px] text-slate-400">Statutory underpayment</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 block">Complaints Generated</span>
-          <div className="text-2xl font-black text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-cyan-400" /> 2 Letters
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/30 space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Total Compensation</span>
+          <div className="text-xl font-black text-emerald-300 flex items-center gap-1 font-mono">
+            <IndianRupee className="w-4 h-4" /> 1,650
+          </div>
+          <p className="text-[10px] text-emerald-400/80">Base + Allowances</p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1 col-span-2 sm:col-span-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">Complaints Generated</span>
+          <div className="text-xl font-black text-white flex items-center gap-1.5">
+            <FileText className="w-4 h-4 text-cyan-400" /> 2 Letters
           </div>
           <p className="text-[10px] text-slate-500">Ready for Labor Board</p>
         </div>

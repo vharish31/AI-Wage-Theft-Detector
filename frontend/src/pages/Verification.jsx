@@ -9,7 +9,11 @@ import GigPlatformSelector from '../components/GigPlatformSelector';
 import GigTaskForm from '../components/GigTaskForm';
 
 import { resolveLocationState } from '../utils/locationHelper';
-import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles, Layers, Plus, ShoppingBag, Package } from 'lucide-react';
+import BonusEntryForm from '../components/BonusEntryForm';
+import AllowanceEntryForm from '../components/AllowanceEntryForm';
+import TipsEntryForm from '../components/TipsEntryForm';
+import { calculateTotalCompensation } from '../utils/compensationCalculator';
+import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles, Layers, Plus, ShoppingBag, Package, Gift, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function Verification({ workData, setAuditResult }) {
   const navigate = useNavigate();
@@ -24,6 +28,15 @@ export default function Verification({ workData, setAuditResult }) {
   const [location, setLocation] = useState(workData?.location || 'Chennai');
   const [receivedAmount, setReceivedAmount] = useState(workData?.received_amount || '');
   const [workerName, setWorkerName] = useState(workData?.worker_name || '');
+  
+  // Incentives state
+  const [showIncentivesForm, setShowIncentivesForm] = useState(false);
+  const [bonuses, setBonuses] = useState([]);
+  const [allowances, setAllowances] = useState([]);
+  const [tips, setTips] = useState('');
+  const [commissions, setCommissions] = useState('');
+  const [deductions, setDeductions] = useState('');
+
   const [isChecking, setIsChecking] = useState(false);
   const [activeStepIndex, setActiveStepIndex] = useState(0);
 
@@ -219,6 +232,14 @@ export default function Verification({ workData, setAuditResult }) {
       
       await new Promise(r => setTimeout(r, 400));
       result.worker_name = workerName;
+      result.compensation = calculateTotalCompensation({
+        baseWage: receivedAmount,
+        bonuses,
+        allowances,
+        tips,
+        commissions,
+        deductions
+      });
 
       setAuditResult(result);
       navigate('/report');
@@ -424,8 +445,43 @@ export default function Verification({ workData, setAuditResult }) {
               />
             </div>
             <p className="text-xs text-slate-400">
-              Enter the exact cash amount or UPI payment received for this shift.
+              Enter the exact base cash amount or UPI payment received for this shift.
             </p>
+          </div>
+
+          {/* EMPLOYER INCENTIVES, BONUSES & ALLOWANCES EXPANDABLE SECTION */}
+          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+            <button
+              type="button"
+              onClick={() => setShowIncentivesForm(!showIncentivesForm)}
+              className="w-full flex items-center justify-between text-xs font-bold text-slate-200 hover:text-cyan-300 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Gift className="w-4 h-4 text-amber-400" />
+                <span>Add Employer Bonuses, Allowances & Tips (Optional)</span>
+                {(bonuses.length > 0 || allowances.length > 0 || tips > 0 || commissions > 0) && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] border border-amber-500/40">
+                    +₹{calculateTotalCompensation({ baseWage: receivedAmount, bonuses, allowances, tips, commissions, deductions }).totalCompensation - (Number(receivedAmount) || 0)} Extra
+                  </span>
+                )}
+              </div>
+              {showIncentivesForm ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+            </button>
+
+            {showIncentivesForm && (
+              <div className="space-y-4 pt-2 animate-fadeIn">
+                <BonusEntryForm bonuses={bonuses} setBonuses={setBonuses} />
+                <AllowanceEntryForm allowances={allowances} setAllowances={setAllowances} />
+                <TipsEntryForm
+                  tips={tips}
+                  setTips={setTips}
+                  commissions={commissions}
+                  setCommissions={setCommissions}
+                  deductions={deductions}
+                  setDeductions={setDeductions}
+                />
+              </div>
+            )}
           </div>
 
           {isChecking && (

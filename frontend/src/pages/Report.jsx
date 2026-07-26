@@ -4,6 +4,8 @@ import RiskMeter from '../components/RiskMeter';
 import WageTheftAnalysis from '../components/WageTheftAnalysis';
 import CombinedReport from '../components/CombinedReport';
 import GigWorkerDashboard from '../components/GigWorkerDashboard';
+import CompensationBreakdownCard from '../components/CompensationBreakdownCard';
+import CompensationSummary from '../components/CompensationSummary';
 import { generateComplaintLetter, generateGigComplaintAPI, downloadPDFReport } from '../services/api';
 
 import { 
@@ -313,6 +315,26 @@ export default function Report({ auditResult }) {
               status: data.is_underpaid ? 'Possible Wage Theft' : 'No Wage Theft',
               calculationMethod: `${data.job_type} Standard Benchmark (${data.legal_ref || 'Minimum Wages Act'})`
             }} 
+          />
+
+          {/* ITEMIZED COMPENSATION BREAKDOWN & STATUTORY VALIDATION */}
+          <CompensationBreakdownCard
+            breakdown={data.compensation || {
+              baseWage: data.received_amount || 600,
+              totalBonuses: 0,
+              totalAllowances: 0,
+              totalTips: 0,
+              totalCommissions: 0,
+              totalDeductions: 0,
+              totalCompensation: data.received_amount || 600
+            }}
+            minimumWage={data.expected_wage}
+          />
+
+          <CompensationSummary
+            baseWage={data.compensation?.baseWage || data.received_amount || 600}
+            minimumWage={data.expected_wage}
+            totalCompensation={data.compensation?.totalCompensation || data.received_amount || 600}
           />
 
           {/* METRICS & RISK METER GRID */}
