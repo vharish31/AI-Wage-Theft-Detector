@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, FileText, Mic, Keyboard, Sparkles, CheckCircle2, Info, ArrowRight, Star } from 'lucide-react';
+import { ShieldCheck, FileText, Mic, Keyboard, Info, ArrowRight } from 'lucide-react';
 import VerificationCard from '../components/VerificationCard';
 import { useVerificationRouter } from '../components/VerificationRouter';
 
@@ -30,7 +30,7 @@ export default function VerificationMethod() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 py-6 sm:py-8">
+    <div className="max-w-6xl mx-auto space-y-10 py-6 sm:py-8 animate-fadeIn">
       
       {/* Onboarding Header */}
       <div className="space-y-3 text-center sm:text-left">

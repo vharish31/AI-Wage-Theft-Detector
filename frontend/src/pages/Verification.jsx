@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { detectWageTheft, validateWorkDataAPI, auditMultiJobsAPI, auditGigWorkerAPI } from '../services/api';
 import ProcessFlowStepper from '../components/ProcessFlowStepper';
 import ValidationBanner from '../components/ValidationBanner';
@@ -7,20 +7,38 @@ import ModernNumberInput from '../components/ModernNumberInput';
 import MultiJobForm from '../components/MultiJobForm';
 import GigPlatformSelector from '../components/GigPlatformSelector';
 import GigTaskForm from '../components/GigTaskForm';
+import PayslipUploader from '../components/PayslipUploader';
 
 import { resolveLocationState } from '../utils/locationHelper';
 import BonusEntryForm from '../components/BonusEntryForm';
 import AllowanceEntryForm from '../components/AllowanceEntryForm';
 import TipsEntryForm from '../components/TipsEntryForm';
 import { calculateTotalCompensation } from '../utils/compensationCalculator';
-import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles, Layers, Plus, ShoppingBag, Package, Gift, ChevronDown, ChevronUp } from 'lucide-react';
+import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles, Layers, Plus, ShoppingBag, Gift, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 
 export default function Verification({ workData, setAuditResult }) {
   const navigate = useNavigate();
+  const routeLocation = useLocation();
 
-  // Mode Selection: 'hourly' | 'gig' | 'multi'
-  const initialMode = workData?.is_gig || workData?.employment_type === 'gig' ? 'gig' : (workData?.is_multi_job ? 'multi' : 'hourly');
+  // Mode Selection: 'payslip' | 'hourly' | 'gig' | 'multi'
+  const queryParams = new URLSearchParams(routeLocation.search);
+  const modeParam = queryParams.get('mode');
+
+  const initialMode = modeParam === 'payslip'
+    ? 'payslip'
+    : (workData?.is_gig || workData?.employment_type === 'gig'
+        ? 'gig'
+        : (workData?.is_multi_job ? 'multi' : 'hourly'));
+
   const [activeWorkflowMode, setActiveWorkflowMode] = useState(initialMode);
+
+  useEffect(() => {
+    if (modeParam === 'payslip') {
+      setActiveWorkflowMode('payslip');
+    } else if (modeParam === 'manual') {
+      setActiveWorkflowMode('hourly');
+    }
+  }, [modeParam]);
 
   // Hourly state
   const [jobType, setJobType] = useState(workData?.job_type || 'Painter');
@@ -102,7 +120,38 @@ export default function Verification({ workData, setAuditResult }) {
     }
   }, [workData]);
 
-  const handleGigAuditSubmit = async (calcResult) => {
+  const handlePayslipAudit = async (ocrData) => {
+    setIsChecking(true);
+    try {
+      const result = await detectWageTheft({
+        job_type: ocrData.job_type || 'Worker',
+        location: ocrData.location || 'Chennai',
+        received_amount: ocrData.net_salary || ocrData.received_amount || 0,
+        hours_worked: ocrData.hours_worked || 8
+      });
+      result.worker_name = ocrData.worker_name || 'Worker';
+      result.employer_name = ocrData.employer_name || 'Employer';
+      result.is_payslip_verified = true;
+      result.illegal_deductions = ocrData.illegal_deductions || 0;
+      result.compensation = calculateTotalCompensation({
+        baseWage: ocrData.net_salary || 0,
+        bonuses: [],
+        allowances: ocrData.allowances ? [{ id: '1', title: 'Allowances', amount: ocrData.allowances }] : [],
+        tips: 0,
+        commissions: 0,
+        deductions: ocrData.illegal_deductions || 0
+      });
+
+      setAuditResult(result);
+      navigate('/report');
+    } catch (err) {
+      console.error('Error running payslip audit:', err);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  const handleGigAuditSubmit = async () => {
     setIsChecking(true);
     try {
       const payload = {
@@ -251,43 +300,56 @@ export default function Verification({ workData, setAuditResult }) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 py-6">
+    <div className="max-w-4xl mx-auto space-y-8 py-6 animate-fadeIn">
       
       {/* Header */}
       <div className="space-y-2 text-center sm:text-left">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold">
-          STEP 3 & 4: PAYMENT VERIFICATION ENGINE
+          PAYMENT VERIFICATION ENGINE & AUDIT GATEWAY
         </div>
         <h1 className="text-3xl font-extrabold text-white tracking-tight">
-          Verify Payment & Underpayment Audit
+          Verify Payment & Statutory Underpayment Audit
         </h1>
         <p className="text-slate-400 text-sm">
-          Select your workflow mode to cross-examine actual payment received against statutory minimum wage datasets or gig per-order calculations.
+          Select your workflow mode to cross-examine payment received against statutory minimum wage datasets, official payslip OCR, or gig per-order models.
         </p>
       </div>
 
       {/* WORKFLOW MODE SELECTOR TAB BAR */}
-      <div className="grid grid-cols-3 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 gap-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 gap-1.5 shadow-lg">
+        <button
+          type="button"
+          onClick={() => setActiveWorkflowMode('payslip')}
+          className={`py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            activeWorkflowMode === 'payslip'
+              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/20'
+              : 'text-slate-400 hover:text-amber-400 hover:bg-slate-800/40'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>Upload Payslip</span>
+        </button>
+
         <button
           type="button"
           onClick={() => setActiveWorkflowMode('hourly')}
-          className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeWorkflowMode === 'hourly'
               ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/40'
           }`}
         >
           <Briefcase className="w-4 h-4" />
-          <span>Hourly Worker</span>
+          <span>Manual Entry</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveWorkflowMode('gig')}
-          className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeWorkflowMode === 'gig'
               ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/40'
           }`}
         >
           <ShoppingBag className="w-4 h-4" />
@@ -297,10 +359,10 @@ export default function Verification({ workData, setAuditResult }) {
         <button
           type="button"
           onClick={() => setActiveWorkflowMode('multi')}
-          className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
             activeWorkflowMode === 'multi'
               ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/40'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -308,8 +370,11 @@ export default function Verification({ workData, setAuditResult }) {
         </button>
       </div>
 
-      {/* Render GIG WORKER MODE */}
-      {activeWorkflowMode === 'gig' ? (
+      {/* Render PAYSLIP OCR MODE */}
+      {activeWorkflowMode === 'payslip' ? (
+        <PayslipUploader onAuditSuccess={handlePayslipAudit} isAuditing={isChecking} />
+      ) : activeWorkflowMode === 'gig' ? (
+        /* Render GIG WORKER MODE */
         <div className="space-y-6">
           <GigPlatformSelector
             selectedPlatform={gigPlatform}
@@ -339,7 +404,7 @@ export default function Verification({ workData, setAuditResult }) {
           isAuditing={isChecking}
         />
       ) : (
-        /* Render HOURLY WORKER MODE (Standard workflow) */
+        /* Render HOURLY WORKER MANUAL ENTRY MODE */
         <form onSubmit={handleCheckWageTheft} className="glass-card rounded-2xl p-6 sm:p-8 border border-slate-700 space-y-6">
           
           <div>
@@ -351,7 +416,7 @@ export default function Verification({ workData, setAuditResult }) {
               value={workerName}
               onChange={(e) => setWorkerName(e.target.value)}
               placeholder="e.g. Ramesh Kumar"
-              className="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm"
+              className="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm font-medium"
             />
           </div>
 
@@ -499,7 +564,7 @@ export default function Verification({ workData, setAuditResult }) {
             className={`w-full py-4 px-6 rounded-xl font-extrabold text-lg shadow-xl flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.01] active:scale-95 ${
               validationResult?.error && showValidationWarning
                 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                : 'bg-gradient-to-r from-rose-500 via-red-600 to-amber-600 hover:from-rose-400 hover:to-red-500 text-white shadow-rose-500/20'
+                : 'bg-gradient-to-r from-rose-500 via-red-600 to-amber-600 hover:from-rose-400 hover:to-red-500 text-white shadow-rose-500/20 cursor-pointer'
             }`}
           >
             {isChecking ? (

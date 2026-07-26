@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from app.routes import speech, detect, complaint, wage_theft, validate, ml_routes, hours, multi_job, gig_routes, admin_routes, compensation_routes, verification_method_routes
+from app.routes import speech, detect, complaint, wage_theft, validate, ml_routes, hours, multi_job, gig_routes, admin_routes, compensation_routes, verification_method_routes, payslip_routes
 from app.auth import auth_routes
 
 load_dotenv()
@@ -38,6 +38,7 @@ app.include_router(auth_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(compensation_routes.router)
 app.include_router(verification_method_routes.router)
+app.include_router(payslip_routes.router)
 
 
 
