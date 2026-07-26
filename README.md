@@ -4,7 +4,7 @@
 
 Millions of gig workers, construction workers, delivery partners, and informal laborers are underpaid because they have no simple, reliable way to verify whether they received statutory minimum wages.
 
-**AI Wage Theft Detector** is an advanced full-stack platform designed to empower informal workforce members. It allows workers to log work details using natural voice commands, automatically extracts structured work data using Google Gemini AI, audits received pay against official state minimum wage benchmarks, predicts wage theft risk using Machine Learning models trained on **1.718 Million real payroll records**, intelligently estimates shift hours from informal phrasing ("half day", "night shift"), supports **multi-job workdays**, and generates downloadable formal legal complaint letters with PDF reports.
+**AI Wage Theft Detector** is an advanced full-stack platform designed to empower informal workforce members. It allows workers to log work details using natural voice commands, automatically extracts structured work data using Google Gemini AI, audits received pay against official state minimum wage benchmarks, predicts wage theft risk using Machine Learning models trained on **1.718 Million real payroll records**, intelligently estimates shift hours from informal phrasing ("half day", "night shift"), supports **multi-job workdays**, provides user-scoped audit history logs, and generates **professional 3-page downloadable legal PDF audit reports**.
 
 ---
 
@@ -12,6 +12,23 @@ Millions of gig workers, construction workers, delivery partners, and informal l
 
 * 🎙️ **Voice Work Logger**: Speak shift details (e.g. *"Today I worked 8 hours as a construction worker in Chennai"*) using Web Speech API with real-time transcript visualization.
 * 🤖 **AI Extraction Engine**: Powered by Google Gemini API (`gemini-1.5-flash`) to parse job roles, hours worked, and locations into structured JSON.
+* 🚀 **Primary Wage Verification Gateway**:
+  - 3 distinct verification workflows: **Upload Payslip (AI OCR)**, **Start Voice Verification**, and **Manual Verification**.
+  - Interactive selection highlight states (Amber highlight when selected, neutral slate when idle).
+  - Instant, non-blocking 0ms route transitions.
+  - Clear navigation back buttons (`← Back to Dashboard`, `← Change Verification Method`, `← Back to Verification Gateway`).
+* 📄 **Professional 3-Page PDF Audit Report Generator**:
+  - Direct client-side PDF document download powered by `jsPDF` (v4) and `jspdf-autotable` (v5).
+  - **Page 1**: Worker & Audit details, Statutory Verdict Banner (Underpaid / Compliant), 4 financial metric summary cards, Risk Score Gauge, Compensation Breakdown table.
+  - **Page 2**: Statutory Legal Analysis & Violations schedule (Minimum Wages Act 1948, Code on Wages 2019, Code on Social Security 2020), Evidence Log, Recommended Legal Action steps.
+  - **Page 3**: Official Declaration & Signature Block (Worker Signature, Witness Signature, Date), Regional Labor Commissioner Grievance Helplines & Legal Aid Resources.
+* 📜 **User-Scoped Verification History (`/history`)**:
+  - Account-isolated verification history log system (`historyStorage`).
+  - Users (**Harish**, **Shwetha**) view only their own verification records while Admin retains system-wide access.
+  - Real-time search by job role, city, or verification method.
+  - Modern icon-free custom select dropdown filters for methods and audit statuses.
+  - Modern icon-free **From Date & To Date Range Calendar Picker** with interactive day selection and range highlighting.
+  - Direct "View Report", "Download PDF Report", and single/clear record management.
 * 🧠 **1.718M Record ML Model Suite**:
   - Trained across **100% of 1,718,293 real payroll records** (7 datasets).
   - **99.98% Accuracy** Binary Wage Theft Classifier.
@@ -24,14 +41,14 @@ Millions of gig workers, construction workers, delivery partners, and informal l
 * 💼 **Multi-Job Workday Support**:
   - Log multiple jobs performed in a single day (e.g., Morning: Construction Worker 5h, Afternoon: Painter 3h, Evening: Delivery Partner 2h).
   - Automatic multi-shift speech transcript detection and dynamic `+ Add Another Job` cards.
-  - Independent statutory wage audit per job with daily combined summary card.
-  - Unified legal complaint letter summarizing all wage theft discrepancies across multiple employers.
+  - Independent statutory wage audit per job with daily combined summary.
 * 📊 **Statutory Wage Theft Engine**: Audits received pay against state gazette minimum wage rates (`wage_rates.json`), calculating expected wages, underpayment shortfall, and severity risk scores (Low, Medium, High, Critical).
-* 📜 **Conditional Legal Complaint Generator**:
-  - Skips complaint generation when received pay $\ge$ statutory expected wage (displays "No Legal Action Needed" card).
-  - Generates formal legal complaint letters addressed to the Regional Labor Commissioner under the Minimum Wages Act, 1948 upon explicit button trigger.
-* 📄 **PDF Audit Report Export**: Server-side ReportLab PDF generation for offline filing and submission to legal aid authorities.
-* 🔄 **Offline Fallback Engine**: Works seamlessly offline with client-side and server-side fallback heuristic engines when Gemini API key or network connection is unavailable.
+* 👥 **User Account Management (Admin Panel)**:
+  - Admin Panel with user management table, user status toggles (`ACTIVE` / `SUSPENDED`), and direct user account deletion.
+* ✨ **Light Glow Hover Aesthetics & Ultra-Fast UX**:
+  - High-end dark glassmorphism design system.
+  - Glowing light borders (`section-glow`, `glass-card:hover`) on hover across all containers.
+  - Active button micro-animations (`active:scale-[0.98]`) for 60 FPS responsive interactions.
 
 ---
 
@@ -41,30 +58,37 @@ Millions of gig workers, construction workers, delivery partners, and informal l
 AI-Wage-Theft-Detector/
 ├── frontend/
 │   ├── public/
+│   │   └── favicon.png (Official Emblem Logo)
 │   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Home.jsx
-│   │   │   ├── VoiceLog.jsx
-│   │   │   ├── Verification.jsx
-│   │   │   └── Report.jsx
 │   │   ├── components/
 │   │   │   ├── Navbar.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── VerificationCard.jsx
+│   │   │   ├── VerificationRouter.jsx
+│   │   │   ├── ModernDropdown.jsx
+│   │   │   ├── ModernCalendarFilter.jsx
 │   │   │   ├── VoiceRecorder.jsx
 │   │   │   ├── WageCard.jsx
-│   │   │   ├── RiskMeter.jsx
-│   │   │   ├── StatsCard.jsx
-│   │   │   ├── ConfidenceBanner.jsx
-│   │   │   ├── HoursSuggestionCard.jsx
-│   │   │   ├── HoursConfirmation.jsx
-│   │   │   ├── HoursEstimator.jsx
-│   │   │   ├── JobCard.jsx
-│   │   │   ├── JobTabs.jsx
-│   │   │   ├── JobSummary.jsx
+│   │   │   ├── PayslipUploader.jsx
 │   │   │   ├── MultiJobForm.jsx
-│   │   │   ├── CombinedReport.jsx
 │   │   │   └── Footer.jsx
+│   │   ├── pages/
+│   │   │   ├── Home.jsx
+│   │   │   ├── UserDashboard.jsx
+│   │   │   ├── VerificationMethod.jsx
+│   │   │   ├── Verification.jsx
+│   │   │   ├── VoiceLog.jsx
+│   │   │   ├── History.jsx
+│   │   │   ├── Report.jsx
+│   │   │   └── AdminDashboard.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── utils/
+│   │   │   ├── generatePDFReport.js
+│   │   │   └── historyStorage.js
 │   │   ├── services/
-│   │   │   └── api.js
+│   │   │   ├── api.js
+│   │   │   └── authApi.js
 │   │   ├── App.jsx
 │   │   ├── main.jsx
 │   │   └── index.css
@@ -86,35 +110,17 @@ AI-Wage-Theft-Detector/
 │   │   ├── services/
 │   │   │   ├── gemini_service.py
 │   │   │   ├── wage_service.py
-│   │   │   ├── speech_service.py
 │   │   │   └── pdf_service.py
-│   │   ├── models/
-│   │   │   ├── worker.py
-│   │   │   ├── report.py
-│   │   │   ├── wage_theft_model.py
-│   │   │   └── job.py
-│   │   ├── ml/
-│   │   │   ├── dataset_loader.py
-│   │   │   ├── train_model.py
-│   │   │   └── model_evaluator.py
-│   │   └── utils/
-│   │       ├── hours_estimator.py
-│   │       ├── hours_validator.py
-│   │       ├── multi_job_manager.py
-│   │       └── helpers.py
+│   │   └── ml/
+│   │       ├── train_model.py
+│   │       └── model_evaluator.py
 │   ├── data/
 │   │   ├── wage_rates.json
 │   │   ├── datasets/ (7 CSV files, 1.718M total records)
 │   │   └── models/ (wage_theft_pipeline.joblib)
 │   ├── requirements.txt
 │   └── .env
-│
-├── docs/
-│   ├── architecture.png
-│   ├── workflow.png
-│   └── screenshots/
-├── README.md
-└── .gitignore
+└── README.md
 ```
 
 ---
@@ -124,6 +130,7 @@ AI-Wage-Theft-Detector/
 ### Frontend
 - **Framework**: React 18 (Vite)
 - **Styling**: Vanilla CSS + Tailwind CSS (Dark Glassmorphism Design System)
+- **PDF Engine**: `jsPDF` (v4) & `jspdf-autotable` (v5)
 - **Routing**: React Router DOM v6
 - **Icons**: Lucide React
 - **HTTP Client**: Axios
@@ -131,7 +138,6 @@ AI-Wage-Theft-Detector/
 ### Backend
 - **Framework**: FastAPI (Python)
 - **ML Engine**: Scikit-Learn, Joblib, Pandas, NumPy
-- **PDF Engine**: ReportLab
 - **Server**: Uvicorn
 
 ### AI & Datasets
@@ -217,28 +223,6 @@ Generates a combined legal complaint letter summarizing all wage theft discrepan
 
 ### 6. `POST /ml/predict-wage-theft`
 Predicts wage theft using the trained ML model suite (1.718M records).
-
-### 7. `POST /complaint/pdf`
-Returns binary PDF audit report stream for offline printing and submission.
-
----
-
-## 🌐 Deployment Instructions
-
-### Deploy Frontend to Netlify
-1. Connect GitHub repository to Netlify.
-2. Set **Base directory**: `frontend`
-3. Set **Build command**: `npm run build`
-4. Set **Publish directory**: `frontend/dist`
-5. Add Environment Variable: `VITE_API_URL` $\rightarrow$ your backend server URL.
-
-### Deploy Backend to Render
-1. Create a new **Web Service** on Render pointing to your GitHub repository.
-2. Set **Root Directory**: `backend`
-3. Set **Environment**: `Python 3`
-4. Set **Build Command**: `pip install -r requirements.txt`
-5. Set **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-6. Add Environment Variable: `GEMINI_API_KEY` $\rightarrow$ your Gemini API key.
 
 ---
 
