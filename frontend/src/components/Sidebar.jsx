@@ -103,8 +103,8 @@ export default function Sidebar({ workData, auditResult }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-lg tracking-tight text-white group-hover:text-cyan-400 transition-colors">
-                  AI Wage Theft
+                <span className="font-black text-base lg:text-lg tracking-tight text-white group-hover:text-cyan-400 transition-colors leading-tight">
+                  AI Wage Theft Detector
                 </span>
               </div>
               <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border inline-block ${
