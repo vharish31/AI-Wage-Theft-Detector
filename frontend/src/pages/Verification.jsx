@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { detectWageTheft, validateWorkDataAPI, auditMultiJobsAPI, auditGigWorkerAPI } from '../services/api';
 import ProcessFlowStepper from '../components/ProcessFlowStepper';
 import ValidationBanner from '../components/ValidationBanner';
@@ -9,16 +9,19 @@ import GigPlatformSelector from '../components/GigPlatformSelector';
 import GigTaskForm from '../components/GigTaskForm';
 import PayslipUploader from '../components/PayslipUploader';
 
+import { useAuth } from '../context/AuthContext';
 import { resolveLocationState } from '../utils/locationHelper';
 import BonusEntryForm from '../components/BonusEntryForm';
 import AllowanceEntryForm from '../components/AllowanceEntryForm';
 import TipsEntryForm from '../components/TipsEntryForm';
 import { calculateTotalCompensation } from '../utils/compensationCalculator';
-import { IndianRupee, ShieldAlert, ArrowRight, Briefcase, Clock, MapPin, Sparkles, Layers, Plus, ShoppingBag, Gift, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { saveVerificationToHistory } from '../utils/historyStorage';
+import { IndianRupee, ShieldAlert, ArrowRight, ArrowLeft, Briefcase, Clock, MapPin, Sparkles, Layers, Plus, ShoppingBag, Gift, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 
 export default function Verification({ workData, setAuditResult }) {
   const navigate = useNavigate();
   const routeLocation = useLocation();
+  const { user } = useAuth();
 
   // Mode Selection: 'payslip' | 'hourly' | 'gig' | 'multi'
   const queryParams = new URLSearchParams(routeLocation.search);
@@ -143,6 +146,7 @@ export default function Verification({ workData, setAuditResult }) {
       });
 
       setAuditResult(result);
+      saveVerificationToHistory(result, 'Upload Payslip (AI OCR)', user);
       navigate('/report');
     } catch (err) {
       console.error('Error running payslip audit:', err);
@@ -155,7 +159,7 @@ export default function Verification({ workData, setAuditResult }) {
     setIsChecking(true);
     try {
       const payload = {
-        worker_name: workerName || 'Gig Worker',
+        worker_name: workerName || user?.name || 'Gig Worker',
         platform: gigPlatform,
         custom_platform: customPlatform,
         task_type: gigTaskDetails.taskType,
@@ -180,11 +184,13 @@ export default function Verification({ workData, setAuditResult }) {
       };
 
       const auditRes = await auditGigWorkerAPI(payload);
-      setAuditResult({
+      const fullGigResult = {
         ...auditRes,
         is_gig: true,
-        worker_name: workerName || 'Gig Worker'
-      });
+        worker_name: workerName || user?.name || 'Gig Worker'
+      };
+      setAuditResult(fullGigResult);
+      saveVerificationToHistory(fullGigResult, 'Gig Platform Audit', user);
       navigate('/report');
     } catch (err) {
       console.error('Error running gig audit:', err);
@@ -197,13 +203,15 @@ export default function Verification({ workData, setAuditResult }) {
     setIsChecking(true);
     try {
       const multiResult = await auditMultiJobsAPI({
-        worker_name: workerName || 'Worker',
+        worker_name: workerName || user?.name || 'Worker',
         jobs: multiJobs
       });
-      setAuditResult({
+      const fullMultiResult = {
         ...multiResult,
         is_multi_job: true
-      });
+      };
+      setAuditResult(fullMultiResult);
+      saveVerificationToHistory(fullMultiResult, 'Multi-Job Daily Audit', user);
       navigate('/report');
     } catch (err) {
       console.error('Error running multi-job audit:', err);
@@ -291,6 +299,7 @@ export default function Verification({ workData, setAuditResult }) {
       });
 
       setAuditResult(result);
+      saveVerificationToHistory(result, 'Manual Entry Audit', user);
       navigate('/report');
     } catch (err) {
       console.error('Error running wage detection:', err);
@@ -303,72 +312,84 @@ export default function Verification({ workData, setAuditResult }) {
     <div className="max-w-4xl mx-auto space-y-8 py-6 animate-fadeIn">
       
       {/* Header */}
-      <div className="space-y-2 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold">
+      <div className="space-y-3 text-center sm:text-left">
+        <div>
+          <Link 
+            to="/verify-method" 
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 text-xs font-extrabold text-cyan-400 hover:text-cyan-300 transition-all cursor-pointer shadow-md"
+          >
+            <ArrowLeft className="w-4 h-4 text-cyan-400" /> Change Verification Method
+          </Link>
+        </div>
+
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold w-fit">
           PAYMENT VERIFICATION ENGINE & AUDIT GATEWAY
         </div>
         <h1 className="text-3xl font-extrabold text-white tracking-tight">
           Verify Payment & Statutory Underpayment Audit
         </h1>
         <p className="text-slate-400 text-sm">
-          Select your workflow mode to cross-examine payment received against statutory minimum wage datasets, official payslip OCR, or gig per-order models.
+          {activeWorkflowMode === 'payslip'
+            ? 'Upload your official monthly salary slip or payment document for instant AI OCR audit.'
+            : 'Cross-examine payment received against statutory minimum wage datasets, gig per-order models, or multi-job shifts.'}
         </p>
       </div>
 
       {/* WORKFLOW MODE SELECTOR TAB BAR */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 gap-1.5 shadow-lg">
-        <button
-          type="button"
-          onClick={() => setActiveWorkflowMode('payslip')}
-          className={`py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-            activeWorkflowMode === 'payslip'
-              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/20'
-              : 'text-slate-400 hover:text-amber-400 hover:bg-slate-800/40'
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          <span>Upload Payslip</span>
-        </button>
+      {activeWorkflowMode === 'payslip' ? (
+        /* Upload Payslip Selected: Show ONLY Upload Payslip option */
+        <div className="flex p-1.5 rounded-2xl bg-slate-900/80 border border-amber-500/40 shadow-lg">
+          <button
+            type="button"
+            className="w-full py-2.5 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/20 cursor-default"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Upload Payslip</span>
+          </button>
+        </div>
+      ) : (
+        /* Manual Method Selected: Show other options EXCEPT Upload Payslip option */
+        <div className="grid grid-cols-1 sm:grid-cols-3 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 gap-1.5 shadow-lg">
+          <button
+            type="button"
+            onClick={() => setActiveWorkflowMode('hourly')}
+            className={`py-2.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              activeWorkflowMode === 'hourly'
+                ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
+          >
+            <Briefcase className="w-4 h-4" />
+            <span>Manual Entry</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveWorkflowMode('hourly')}
-          className={`py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-            activeWorkflowMode === 'hourly'
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/40'
-          }`}
-        >
-          <Briefcase className="w-4 h-4" />
-          <span>Manual Entry</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveWorkflowMode('gig')}
+            className={`py-2.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              activeWorkflowMode === 'gig'
+                ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Gig Per-Order</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveWorkflowMode('gig')}
-          className={`py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-            activeWorkflowMode === 'gig'
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/40'
-          }`}
-        >
-          <ShoppingBag className="w-4 h-4" />
-          <span>Gig Per-Order</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveWorkflowMode('multi')}
-          className={`py-2.5 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
-            activeWorkflowMode === 'multi'
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-              : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800/40'
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span>Multi-Job</span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setActiveWorkflowMode('multi')}
+            className={`py-2.5 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              activeWorkflowMode === 'multi'
+                ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Multi-Job</span>
+          </button>
+        </div>
+      )}
 
       {/* Render PAYSLIP OCR MODE */}
       {activeWorkflowMode === 'payslip' ? (

@@ -16,27 +16,37 @@ export default function VerificationCard({
   // Determine color themes for the 3 distinct verification methods
   const isPayslip = id === 'payslip';
   const isVoice = id === 'voice';
+  const isManual = id === 'manual';
 
-  let borderStyle = 'bg-slate-900/80 border-slate-800 hover:border-slate-700 hover:bg-slate-900/90';
+  // Default: neutral/dark styles when nothing is selected with light glow on hover
+  let borderStyle = 'bg-slate-900/80 border-slate-800 hover:border-cyan-500/40 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:bg-slate-900/95';
   let iconStyle = 'bg-slate-800 text-slate-400 border-slate-700';
-  let buttonStyle = 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 font-semibold';
+  let buttonStyle = 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 font-semibold active:scale-[0.98]';
 
-  if (isSelected || isPayslip) {
-    if (isPayslip) {
-      borderStyle = 'bg-slate-900 border-amber-500 shadow-2xl shadow-amber-950/40 ring-2 ring-amber-500/50 scale-[1.01]';
-      iconStyle = 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-inner';
-      buttonStyle = 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black shadow-lg shadow-amber-500/30 scale-[1.01]';
-    } else if (isVoice) {
-      borderStyle = isSelected
-        ? 'bg-slate-900 border-cyan-500 shadow-2xl shadow-cyan-950/40 ring-2 ring-cyan-500/50 scale-[1.01]'
-        : 'bg-slate-900/90 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-900';
-      iconStyle = isSelected
-        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40'
-        : 'bg-slate-800 text-cyan-400 border-slate-700';
-      buttonStyle = isSelected
-        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold shadow-lg shadow-cyan-500/30'
-        : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 font-semibold';
-    }
+  if (isPayslip && isSelected) {
+    borderStyle = 'bg-slate-900 border-amber-500 shadow-2xl shadow-amber-950/40 ring-2 ring-amber-500/50 scale-[1.01] hover:shadow-[0_0_35px_rgba(245,158,11,0.3)]';
+    iconStyle = 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-inner';
+    buttonStyle = 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black shadow-lg shadow-amber-500/30 active:scale-[0.98]';
+  } else if (isVoice) {
+    borderStyle = isSelected
+      ? 'bg-slate-900 border-amber-500 shadow-2xl shadow-amber-950/40 ring-2 ring-amber-500/50 scale-[1.01] hover:shadow-[0_0_35px_rgba(245,158,11,0.3)]'
+      : 'bg-slate-900/90 border-slate-800 hover:border-cyan-500/40 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:bg-slate-900';
+    iconStyle = isSelected
+      ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+      : 'bg-slate-800 text-slate-400 border-slate-700';
+    buttonStyle = isSelected
+      ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black shadow-lg shadow-amber-500/30 active:scale-[0.98]'
+      : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 font-semibold active:scale-[0.98]';
+  } else if (isManual) {
+    borderStyle = isSelected
+      ? 'bg-slate-900 border-amber-500 shadow-2xl shadow-amber-950/40 ring-2 ring-amber-500/50 scale-[1.01] hover:shadow-[0_0_35px_rgba(245,158,11,0.3)]'
+      : 'bg-slate-900/90 border-slate-800 hover:border-cyan-500/40 hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] hover:bg-slate-900';
+    iconStyle = isSelected
+      ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+      : 'bg-slate-800 text-slate-400 border-slate-700';
+    buttonStyle = isSelected
+      ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black shadow-lg shadow-amber-500/30 active:scale-[0.98]'
+      : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 font-semibold active:scale-[0.98]';
   }
 
   return (

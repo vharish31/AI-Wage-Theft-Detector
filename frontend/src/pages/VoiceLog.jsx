@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import VoiceRecorder from '../components/VoiceRecorder';
 import ProcessFlowStepper from '../components/ProcessFlowStepper';
 import TranscriptReview from '../components/TranscriptReview';
@@ -19,7 +19,7 @@ import { detectGigDetailsFromTranscript } from '../utils/gigDetector';
 
 import { normalizeJobType } from '../utils/jobAliases';
 import { resolveLocationState } from '../utils/locationHelper';
-import { Sparkles, ArrowRight, CheckCircle2, RefreshCw, ShieldCheck, MapPin, Clock, ShoppingBag } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, CheckCircle2, RefreshCw, ShieldCheck, MapPin, Clock, ShoppingBag } from 'lucide-react';
 
 export default function VoiceLog({ workData, setWorkData }) {
   const [rawTranscript, setRawTranscript] = useState(null);
@@ -272,8 +272,17 @@ export default function VoiceLog({ workData, setWorkData }) {
     <div className="max-w-4xl mx-auto space-y-8 py-6">
       
       {/* Workflow Header */}
-      <div className="space-y-2 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold">
+      <div className="space-y-3 text-center sm:text-left">
+        <div>
+          <Link 
+            to="/verify-method" 
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 text-xs font-extrabold text-cyan-400 hover:text-cyan-300 transition-all cursor-pointer shadow-md"
+          >
+            <ArrowLeft className="w-4 h-4 text-cyan-400" /> Back to Verification Gateway
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold w-fit">
           <ShieldCheck className="w-4 h-4 text-cyan-400" />
           LOCATION RESOLUTION & JOB TYPE VALIDATION SYSTEM
         </div>

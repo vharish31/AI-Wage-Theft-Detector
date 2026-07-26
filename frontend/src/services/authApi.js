@@ -23,7 +23,7 @@ export const loginAPI = async (email, password) => {
         status: 'ACTIVE',
         createdAt: new Date().toISOString()
       };
-    } else if (cleanEmail === 'user@wagedetector.com' && password === 'User@123') {
+    } else if ((cleanEmail === 'user@wagedetector.com' || cleanEmail === 'harish@wagedetector.com') && (password === 'User@123' || password === 'Harish@123')) {
       return {
         userId: 'usr-worker-01',
         name: 'Harish',
@@ -31,6 +31,18 @@ export const loginAPI = async (email, password) => {
         role: 'USER',
         token: 'mock-jwt-token-user-2026',
         phone: '+91 91234 56789',
+        state: 'Tamil Nadu',
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString()
+      };
+    } else if ((cleanEmail === 'shwetha@wagedetector.com' || cleanEmail === 'shwetha@example.com') && (password === 'User@123' || password === 'Shwetha@123')) {
+      return {
+        userId: 'usr-worker-03',
+        name: 'Shwetha',
+        email: 'shwetha@wagedetector.com',
+        role: 'USER',
+        token: 'mock-jwt-token-shwetha-2026',
+        phone: '+91 98888 77777',
         state: 'Tamil Nadu',
         status: 'ACTIVE',
         createdAt: new Date().toISOString()
@@ -135,8 +147,8 @@ export const getAdminAnalyticsAPI = async (token) => {
         { state: 'Karnataka', cases: 610, amount: 820000 }
       ],
       recentActivity: [
-        { id: 'act-1', user: 'Ramesh K.', action: 'Submitted Voice Log', role: 'Painter', time: '10 mins ago' },
-        { id: 'act-2', user: 'Priya S.', action: 'Generated Gig Complaint', role: 'Delivery Partner', time: '25 mins ago' }
+        { id: 'act-1', user: 'Harish', action: 'Submitted Verification', role: 'Construction Worker', time: '10 mins ago' },
+        { id: 'act-2', user: 'Shwetha', action: 'Generated Gig Complaint', role: 'Delivery Partner', time: '25 mins ago' }
       ]
     };
   }
@@ -153,9 +165,8 @@ export const getAdminUsersAPI = async (token) => {
     return response.data;
   } catch (error) {
     return [
-      { id: 'usr-admin-01', name: 'Administrator', email: 'admin@wagedetector.com', role: 'ADMIN', phone: '+91 98765 43210', state: 'Tamil Nadu', status: 'ACTIVE', created_at: '2026-07-01T08:00:00Z' },
       { id: 'usr-worker-01', name: 'Harish', email: 'user@wagedetector.com', role: 'USER', phone: '+91 91234 56789', state: 'Tamil Nadu', status: 'ACTIVE', created_at: '2026-07-05T10:15:00Z' },
-      { id: 'usr-worker-02', name: 'Suresh Kumar', email: 'suresh@example.com', role: 'USER', phone: '+91 94444 12345', state: 'Karnataka', status: 'ACTIVE', created_at: '2026-07-10T12:00:00Z' }
+      { id: 'usr-worker-03', name: 'Shwetha', email: 'shwetha@wagedetector.com', role: 'USER', phone: '+91 98888 77777', state: 'Tamil Nadu', status: 'ACTIVE', created_at: '2026-07-12T09:30:00Z' }
     ];
   }
 };

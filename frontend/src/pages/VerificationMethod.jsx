@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, FileText, Mic, Keyboard, Info, ArrowRight } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ShieldCheck, FileText, Mic, Keyboard, Info, ArrowRight, ArrowLeft } from 'lucide-react';
 import VerificationCard from '../components/VerificationCard';
 import { useVerificationRouter } from '../components/VerificationRouter';
 
@@ -8,7 +8,7 @@ export default function VerificationMethod() {
   const navigate = useNavigate();
   const { selectAndRoute } = useVerificationRouter();
 
-  const [selectedMethod, setSelectedMethod] = useState('payslip');
+  const [selectedMethod, setSelectedMethod] = useState(null);
   const [hasPreviousPayslip, setHasPreviousPayslip] = useState(false);
 
   useEffect(() => {
@@ -26,15 +26,29 @@ export default function VerificationMethod() {
 
   const handleSelectMethod = (method) => {
     setSelectedMethod(method);
+    localStorage.setItem('last_verification_method', method);
+  };
+
+  const handleNavigate = (method) => {
+    setSelectedMethod(method);
     selectAndRoute(method);
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10 py-6 sm:py-8 animate-fadeIn">
+    <div className="max-w-6xl mx-auto space-y-8 py-6 sm:py-8 animate-fadeIn">
       
       {/* Onboarding Header */}
       <div className="space-y-3 text-center sm:text-left">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold">
+        <div>
+          <Link 
+            to="/dashboard" 
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 text-xs font-extrabold text-cyan-400 hover:text-cyan-300 transition-all cursor-pointer shadow-md"
+          >
+            <ArrowLeft className="w-4 h-4 text-cyan-400" /> Back to Dashboard
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold w-fit">
           <ShieldCheck className="w-4 h-4 text-cyan-400" />
           PRIMARY WAGE VERIFICATION GATEWAY
         </div>
@@ -87,8 +101,8 @@ export default function VerificationMethod() {
           ]}
           buttonText="Upload Payslip"
           isSelected={selectedMethod === 'payslip'}
-          onCardClick={() => setSelectedMethod('payslip')}
-          onButtonClick={() => selectAndRoute('payslip')}
+          onCardClick={() => handleSelectMethod('payslip')}
+          onButtonClick={() => handleNavigate('payslip')}
         />
 
         {/* Card 2: Voice Verification (Popular) */}
@@ -107,8 +121,8 @@ export default function VerificationMethod() {
           ]}
           buttonText="Start Voice Verification"
           isSelected={selectedMethod === 'voice'}
-          onCardClick={() => setSelectedMethod('voice')}
-          onButtonClick={() => selectAndRoute('voice')}
+          onCardClick={() => handleSelectMethod('voice')}
+          onButtonClick={() => handleNavigate('voice')}
         />
 
         {/* Card 3: Manual Entry (Alternative) */}
@@ -127,8 +141,8 @@ export default function VerificationMethod() {
           ]}
           buttonText="Manual Verification"
           isSelected={selectedMethod === 'manual'}
-          onCardClick={() => setSelectedMethod('manual')}
-          onButtonClick={() => selectAndRoute('manual')}
+          onCardClick={() => handleSelectMethod('manual')}
+          onButtonClick={() => handleNavigate('manual')}
         />
 
       </div>

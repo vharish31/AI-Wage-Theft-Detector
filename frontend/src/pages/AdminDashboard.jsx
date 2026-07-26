@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAdminAnalyticsAPI, getAdminUsersAPI, getAdminReportsAPI, manageUserAPI, actOnReportAPI } from '../services/authApi';
-import { ShieldCheck, Users, FileText, AlertTriangle, CheckCircle2, IndianRupee, BarChart3, Settings, ShieldAlert, Check, X, Search, RefreshCw, Layers, Clock, Briefcase } from 'lucide-react';
+import { ShieldCheck, Users, FileText, AlertTriangle, CheckCircle2, IndianRupee, BarChart3, Settings, ShieldAlert, Check, X, Search, RefreshCw, Layers, Clock, Briefcase, Trash2, UserPlus } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { token, user } = useAuth();
@@ -54,6 +54,12 @@ export default function AdminDashboard() {
     const newStatus = currentStatus === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
     await manageUserAPI({ userId: uId, status: newStatus }, token);
     setUserList(prev => prev.map(u => u.id === uId ? { ...u, status: newStatus } : u));
+  };
+
+  const handleDeleteUser = (uId) => {
+    if (window.confirm('Are you sure you want to delete this user account?')) {
+      setUserList(prev => prev.filter(u => u.id !== uId));
+    }
   };
 
   const handleReportAction = async (reportId, action) => {
@@ -169,16 +175,6 @@ export default function AdminDashboard() {
           <FileText className="w-4 h-4" /> Reports & Complaints ({reportList.length})
         </button>
 
-        <button
-          onClick={() => setActiveTab('database')}
-          className={`py-2.5 px-4 rounded-xl text-xs font-extrabold flex items-center gap-2 border transition-all cursor-pointer whitespace-nowrap ${
-            activeTab === 'database'
-              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-              : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:bg-slate-800/40'
-          }`}
-        >
-          <Settings className="w-4 h-4" /> Statutory Wage Benchmarks
-        </button>
       </div>
 
       {/* TAB CONTENT 1: SYSTEM ANALYTICS */}
@@ -325,13 +321,6 @@ export default function AdminDashboard() {
                     </td>
                     <td className="py-3.5 px-4 text-right space-x-2">
                       <button
-                        onClick={() => handleToggleUserRole(u.id, u.role)}
-                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-amber-300 border border-slate-700 transition-all cursor-pointer"
-                      >
-                        Toggle {u.role === 'ADMIN' ? 'to User' : 'to Admin'}
-                      </button>
-
-                      <button
                         onClick={() => handleToggleUserStatus(u.id, u.status)}
                         className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer ${
                           u.status === 'ACTIVE'
@@ -340,6 +329,15 @@ export default function AdminDashboard() {
                         }`}
                       >
                         {u.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteUser(u.id)}
+                        className="px-2 py-1 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-400 border border-rose-800 text-[10px] font-bold transition-all cursor-pointer inline-flex items-center gap-1"
+                        title="Delete User Account"
+                      >
+                        <Trash2 className="w-3 h-3 text-rose-400" />
+                        <span>Delete</span>
                       </button>
                     </td>
                   </tr>
@@ -499,39 +497,6 @@ export default function AdminDashboard() {
                   </tr>
                 </tbody>
               </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB CONTENT 4: STATUTORY WAGE BENCHMARKS */}
-      {activeTab === 'database' && (
-        <div className="bg-slate-900/80 p-6 rounded-3xl border border-slate-800 space-y-5 animate-fadeIn">
-          <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Settings className="w-5 h-5 text-amber-400" />
-              Statutory Minimum Wage Benchmarks Dataset
-            </h3>
-            <p className="text-xs text-slate-400">Official Gazette statutory daily wage rates under Tamil Nadu & Indian labor notifications</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-              <p className="text-xs font-bold text-white">Construction Worker / Laborer</p>
-              <p className="text-lg font-black text-cyan-400 mt-1">₹850.00 / shift</p>
-              <p className="text-[10px] text-slate-500 mt-1">Minimum Wages Act, 1948</p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-              <p className="text-xs font-bold text-white">Painter & Mason</p>
-              <p className="text-lg font-black text-cyan-400 mt-1">₹900.00 / shift</p>
-              <p className="text-[10px] text-slate-500 mt-1">Skilled Statutory Schedule</p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
-              <p className="text-xs font-bold text-white">Gig Delivery Partner</p>
-              <p className="text-lg font-black text-cyan-400 mt-1">₹35.00 / order base</p>
-              <p className="text-[10px] text-slate-500 mt-1">Code on Social Security, 2020</p>
             </div>
           </div>
         </div>

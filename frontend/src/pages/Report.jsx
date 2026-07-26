@@ -6,7 +6,8 @@ import CombinedReport from '../components/CombinedReport';
 import GigWorkerDashboard from '../components/GigWorkerDashboard';
 import CompensationBreakdownCard from '../components/CompensationBreakdownCard';
 import CompensationSummary from '../components/CompensationSummary';
-import { generateComplaintLetter, generateGigComplaintAPI, downloadPDFReport } from '../services/api';
+import { generateComplaintLetter, generateGigComplaintAPI } from '../services/api';
+import { generatePDFReport } from '../utils/generatePDFReport';
 
 import { 
   AlertTriangle, 
@@ -97,16 +98,12 @@ export default function Report({ auditResult }) {
   const handleDownloadPDF = async () => {
     setIsDownloadingPDF(true);
     try {
-      await downloadPDFReport({
-        job_type: data.is_gig ? `${data.platform} ${data.task_type}` : data.job_type,
-        location: data.location || 'Chennai',
-        expected: data.net_expected_payment || data.expected_wage,
-        received: data.actual_payment || data.received_amount,
-        hours_worked: data.working_hours || 8,
-        worker_name: data.worker_name || 'Worker'
+      generatePDFReport({
+        ...data,
+        verification_method: data.is_gig ? 'Gig Platform Audit' : 'Payslip / AI OCR',
       });
     } catch (err) {
-      console.error('Error downloading PDF:', err);
+      console.error('Error generating PDF:', err);
     } finally {
       setIsDownloadingPDF(false);
     }
