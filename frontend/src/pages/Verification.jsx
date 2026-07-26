@@ -335,20 +335,9 @@ export default function Verification({ workData, setAuditResult }) {
         </p>
       </div>
 
-      {/* WORKFLOW MODE SELECTOR TAB BAR */}
-      {activeWorkflowMode === 'payslip' ? (
-        /* Upload Payslip Selected: Show ONLY Upload Payslip option */
-        <div className="flex p-1.5 rounded-2xl bg-slate-900/80 border border-amber-500/40 shadow-lg">
-          <button
-            type="button"
-            className="w-full py-2.5 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/20 cursor-default"
-          >
-            <FileText className="w-4 h-4" />
-            <span>Upload Payslip</span>
-          </button>
-        </div>
-      ) : (
-        /* Manual Method Selected: Show other options EXCEPT Upload Payslip option */
+      {/* WORKFLOW MODE SELECTOR TAB BAR (Manual Mode Only) */}
+      {activeWorkflowMode !== 'payslip' && (
+        /* Manual Method Selected: Show manual options EXCEPT Upload Payslip option */
         <div className="grid grid-cols-1 sm:grid-cols-3 p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 gap-1.5 shadow-lg">
           <button
             type="button"
