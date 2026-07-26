@@ -31,7 +31,7 @@ export default function Login() {
       if (res.role === 'ADMIN') {
         navigate('/admin', { replace: true });
       } else {
-        navigate('/dashboard', { replace: true });
+        navigate('/verify-method', { replace: true });
       }
     } catch (err) {
       setErrorMessage(err.message || 'Login failed. Please verify credentials.');
@@ -63,9 +63,6 @@ export default function Login() {
         <h1 className="text-2xl font-black text-white tracking-tight flex items-center justify-center gap-2">
           AI Wage Theft Detector
         </h1>
-        <p className="text-slate-400 text-xs font-medium">
-          Role-Based Secure Portal Access
-        </p>
       </div>
 
       {/* Main Login Form Card */}

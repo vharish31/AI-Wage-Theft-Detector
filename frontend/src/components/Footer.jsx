@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, PhoneCall, Heart, Scale } from 'lucide-react';
+import { ShieldCheck, PhoneCall, Scale } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -26,20 +26,20 @@ export default function Footer() {
           {/* Emergency Labor Helplines */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3 flex items-center gap-1.5">
-              <PhoneCall className="w-4 h-4 text-emerald-400" /> Labor Helplines (India)
+              <PhoneCall className="w-4 h-4 text-emerald-400" /> Labour Support (India)
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-3 text-xs">
               <li>
-                <span className="block font-semibold text-slate-300">Shram Suvidha Helpline:</span>
-                <a href="tel:18001801610" className="text-cyan-400 hover:underline">1800-180-1610 (Toll Free)</a>
+                <span className="block font-semibold text-slate-300">📞 e-Shram Helpdesk:</span>
+                <a href="tel:14434" className="text-cyan-400 hover:underline font-mono font-bold">14434 (Toll-Free)</a>
               </li>
               <li>
-                <span className="block font-semibold text-slate-300">National Legal Aid (NALSA):</span>
-                <a href="tel:15100" className="text-cyan-400 hover:underline">15100</a>
+                <span className="block font-semibold text-slate-300">📞 e-Shram Toll-Free:</span>
+                <a href="tel:18008896811" className="text-cyan-400 hover:underline font-mono font-bold">1800-889-6811</a>
               </li>
               <li>
-                <span className="block font-semibold text-slate-300">Gig Workers Welfare Helpline:</span>
-                <span className="text-slate-400">1800-200-1099</span>
+                <span className="block font-semibold text-slate-300">⚖ National Legal Aid (NALSA):</span>
+                <a href="tel:15100" className="text-cyan-400 hover:underline font-mono font-bold">15100</a>
               </li>
             </ul>
           </div>
@@ -59,13 +59,8 @@ export default function Footer() {
 
         </div>
 
-        <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <div className="border-t border-slate-800/80 pt-6 text-center text-xs text-slate-500">
           <p>© {new Date().getFullYear()} AI Wage Theft Detector. Dedicated to Social Impact & Worker Protection.</p>
-          <div className="flex items-center gap-1">
-            <span>Built with</span>
-            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-            <span>for Gig & Informal Laborers</span>
-          </div>
         </div>
       </div>
     </footer>

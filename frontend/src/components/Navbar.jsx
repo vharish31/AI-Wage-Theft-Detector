@@ -14,7 +14,8 @@ import {
   Users, 
   BarChart3, 
   FileText, 
-  Settings 
+  Settings,
+  Sparkles
 } from 'lucide-react';
 
 export default function Navbar({ workData, auditResult }) {
@@ -30,8 +31,9 @@ export default function Navbar({ workData, auditResult }) {
   // User Role Navbar Links
   const userNavItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/verify-method', label: 'Verify Method', icon: Sparkles },
     { path: '/voice-log', label: 'Voice Log', icon: Mic },
-    { path: '/verification', label: 'Verify Payment', icon: FileCheck },
+    { path: '/verification', label: 'Manual Form', icon: FileCheck },
     { path: '/report', label: 'Theft Report', icon: AlertTriangle }
   ];
 

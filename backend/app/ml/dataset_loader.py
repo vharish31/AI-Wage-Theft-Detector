@@ -129,7 +129,56 @@ def harmonize_dataframe(df: pd.DataFrame, filename: str) -> pd.DataFrame:
         df_clean["Late_Payment"] = "No"
         df_clean["Salary_Delay_Days"] = 0
         df_clean["Complaint_History"] = "No"
+    # Government Labour Law Checker Dataset Harmonization (e.g. government_labour_law_checker_dataset_5000.csv)
+    elif "min_wage_day" in df_clean.columns and "min_wage_month" in df_clean.columns:
+        df_clean["State"] = df_clean["state"].astype(str)
+        df_clean["District"] = "Central District"
+        df_clean["Occupation"] = df_clean["job_category"].astype(str)
+        df_clean["Industry"] = "Statutory Benchmark Sector"
+        df_clean["Skill_Level"] = df_clean["skill_level"].astype(str)
+        df_clean["Employment_Type"] = "Full Time"
+        df_clean["Gender"] = "All"
+        df_clean["Age"] = 35
+        df_clean["Experience_Years"] = 5
+        df_clean["Working_Days"] = 26
+        df_clean["Hours_Per_Day"] = pd.to_numeric(df_clean.get("max_hours_day", 8), errors='coerce').fillna(8.0)
+        df_clean["Total_Hours_Worked"] = df_clean["Hours_Per_Day"] * 26.0
+        df_clean["Overtime_Hours"] = 0.0
+        df_clean["Weekend_Hours"] = 0.0
+        df_clean["Night_Shift"] = "No"
+
+        daily_wage = pd.to_numeric(df_clean["min_wage_day"], errors='coerce').fillna(0.0)
+        monthly_wage = pd.to_numeric(df_clean["min_wage_month"], errors='coerce').fillna(0.0)
+        hours_day = df_clean["Hours_Per_Day"].replace(0, 8.0)
+
+        df_clean["Minimum_Hourly_Wage"] = (daily_wage / hours_day).round(2)
+        df_clean["Actual_Hourly_Wage"] = df_clean["Minimum_Hourly_Wage"]
+        df_clean["Expected_Salary"] = monthly_wage
+        df_clean["Actual_Salary"] = monthly_wage
+        df_clean["Bonus"] = 0.0
+        df_clean["Legal_Deductions"] = 0.0
+        df_clean["Illegal_Deductions"] = 0.0
+        df_clean["PF_Deduction"] = 0.0
+        df_clean["ESI_Deduction"] = 0.0
+        df_clean["Attendance_Percentage"] = 100.0
+        df_clean["Leaves_Taken"] = 0
+        df_clean["Salary_Delay_Days"] = 0
+        df_clean["Contract_Type"] = "Monthly"
+        df_clean["Company_Size"] = "Medium"
+        df_clean["Company_Type"] = "Statutory"
+        df_clean["Payslip_Provided"] = "Yes"
+        df_clean["Bank_Payment"] = "Yes"
+        df_clean["Overtime_Paid"] = "Yes"
+        df_clean["Minimum_Wage_Violation"] = "No"
+        df_clean["Overtime_Violation"] = "No"
+        df_clean["Illegal_Deduction_Violation"] = "No"
+        df_clean["Late_Payment"] = "No"
+        df_clean["Complaint_History"] = "No"
         df_clean["Union_Member"] = "No"
+
+        df_clean[TARGET_BINARY] = "No"
+        df_clean[TARGET_RISK] = 0.0
+        df_clean[TARGET_TYPE] = "None"
 
     return df_clean
 
