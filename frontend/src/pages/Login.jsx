@@ -52,6 +52,12 @@ export default function Login() {
     handleLogin(null, 'admin@wagedetector.com', 'Admin@123');
   };
 
+  const handleDemoShwethaLogin = () => {
+    setEmail('shwetha@wagedetector.com');
+    setPassword('User@123');
+    handleLogin(null, 'shwetha@wagedetector.com', 'User@123');
+  };
+
   return (
     <div className="max-w-md mx-auto py-8 sm:py-12 space-y-6">
       
@@ -160,30 +166,44 @@ export default function Login() {
             ⚡ Quick Demo Accounts
           </p>
 
-          <div className="grid grid-cols-2 gap-2.5">
-            {/* User Login Card */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {/* User Login Card (Harish) */}
             <button
               type="button"
               onClick={handleDemoUserLogin}
-              className="p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/40 text-left transition-all cursor-pointer group"
+              className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/40 text-left transition-all cursor-pointer group"
             >
-              <div className="flex items-center gap-1.5 mb-1">
-                <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-xs font-bold text-white group-hover:text-cyan-300">User Role</span>
+              <div className="flex items-center gap-1 mb-1">
+                <UserCheck className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <span className="text-xs font-bold text-white group-hover:text-cyan-300 truncate">Harish (User)</span>
               </div>
               <p className="text-[10px] text-slate-400 truncate">user@wagedetector.com</p>
               <p className="text-[10px] text-cyan-400 font-mono font-bold mt-1">Click to Login →</p>
+            </button>
+
+            {/* User Login Card (Shwetha) */}
+            <button
+              type="button"
+              onClick={handleDemoShwethaLogin}
+              className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-purple-500/50 hover:bg-slate-800/40 text-left transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-1 mb-1">
+                <UserCheck className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                <span className="text-xs font-bold text-white group-hover:text-purple-300 truncate">Shwetha (User)</span>
+              </div>
+              <p className="text-[10px] text-slate-400 truncate">shwetha@wagedetector.com</p>
+              <p className="text-[10px] text-purple-400 font-mono font-bold mt-1">Click to Login →</p>
             </button>
 
             {/* Admin Login Card */}
             <button
               type="button"
               onClick={handleDemoAdminLogin}
-              className="p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/40 text-left transition-all cursor-pointer group"
+              className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/40 text-left transition-all cursor-pointer group"
             >
-              <div className="flex items-center gap-1.5 mb-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-xs font-bold text-white group-hover:text-amber-300">Admin Role</span>
+              <div className="flex items-center gap-1 mb-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="text-xs font-bold text-white group-hover:text-amber-300 truncate">Admin Role</span>
               </div>
               <p className="text-[10px] text-slate-400 truncate">admin@wagedetector.com</p>
               <p className="text-[10px] text-amber-400 font-mono font-bold mt-1">Click to Login →</p>

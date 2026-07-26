@@ -109,6 +109,20 @@ async def login_user(payload: UserLoginRequest):
             }
             users.append(matched_user)
             save_users(users)
+        elif email_clean == "shwetha@wagedetector.com" and payload.password in ["User@123", "Shwetha@123"]:
+            matched_user = {
+                "id": "usr-worker-03",
+                "name": "Shwetha",
+                "email": "shwetha@wagedetector.com",
+                "password_hash": hash_password(payload.password),
+                "role": "USER",
+                "phone": "+91 98888 77777",
+                "state": "Tamil Nadu",
+                "status": "ACTIVE",
+                "created_at": "2026-07-12T09:30:00Z"
+            }
+            users.append(matched_user)
+            save_users(users)
 
     if not matched_user:
         raise HTTPException(
@@ -128,7 +142,8 @@ async def login_user(payload: UserLoginRequest):
     if not pwd_ok:
         # Fallback for exact string comparison for demo accounts
         if (matched_user["email"].lower() == "admin@wagedetector.com" and payload.password == "Admin@123") or \
-           (matched_user["email"].lower() == "user@wagedetector.com" and payload.password == "User@123"):
+           (matched_user["email"].lower() == "user@wagedetector.com" and payload.password == "User@123") or \
+           (matched_user["email"].lower() == "shwetha@wagedetector.com" and payload.password in ["User@123", "Shwetha@123"]):
             pwd_ok = True
 
     if not pwd_ok:

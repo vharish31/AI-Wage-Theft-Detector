@@ -24,5 +24,18 @@
     "status": "ACTIVE",
     "created_at": "2026-07-05T10:15:00Z",
     "last_login": "2026-07-26T06:36:23.479774+00:00"
+  },
+  {
+    "id": "usr-worker-03",
+    "name": "Shwetha",
+    "email": "shwetha@wagedetector.com",
+    "password_hash": "pbkdf2:sha256:10000$user_salt$04825d19a2e633d7b8eb512b9ffc2bc3c4b9015eb6f8f5ab1a7509d3df3fbcf2",
+    "raw_password_demo": "User@123",
+    "role": "USER",
+    "phone": "+91 98888 77777",
+    "state": "Tamil Nadu",
+    "status": "ACTIVE",
+    "created_at": "2026-07-12T09:30:00Z",
+    "last_login": "2026-07-26T10:00:00.000000+00:00"
   }
 ]
