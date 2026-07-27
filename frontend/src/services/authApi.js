@@ -47,6 +47,18 @@ export const loginAPI = async (email, password) => {
         status: 'ACTIVE',
         createdAt: new Date().toISOString()
       };
+    } else if ((cleanEmail === 'essakkidevi@wagedetector.com' || cleanEmail === 'essakkidevi@example.com') && (password === 'User@123' || password === 'Essakkidevi@123')) {
+      return {
+        userId: 'usr-worker-04',
+        name: 'Essakkidevi',
+        email: 'essakkidevi@wagedetector.com',
+        role: 'USER',
+        token: 'mock-jwt-token-essakkidevi-2026',
+        phone: '+91 97777 66666',
+        state: 'Tamil Nadu',
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString()
+      };
     } else {
       throw new Error(error.response?.data?.detail || 'Invalid email or password.');
     }
@@ -166,7 +178,8 @@ export const getAdminUsersAPI = async (token) => {
   } catch (error) {
     return [
       { id: 'usr-worker-01', name: 'Harish', email: 'user@wagedetector.com', role: 'USER', phone: '+91 91234 56789', state: 'Tamil Nadu', status: 'ACTIVE', created_at: '2026-07-05T10:15:00Z' },
-      { id: 'usr-worker-03', name: 'Shwetha', email: 'shwetha@wagedetector.com', role: 'USER', phone: '+91 98888 77777', state: 'Tamil Nadu', status: 'ACTIVE', created_at: '2026-07-12T09:30:00Z' }
+      { id: 'usr-worker-03', name: 'Shwetha', email: 'shwetha@wagedetector.com', role: 'USER', phone: '+91 98888 77777', state: 'Tamil Nadu', status: 'ACTIVE', created_at: '2026-07-12T09:30:00Z' },
+      { id: 'usr-worker-04', name: 'Essakkidevi', email: 'essakkidevi@wagedetector.com', role: 'USER', phone: '+91 97777 66666', state: 'Tamil Nadu', status: 'ACTIVE', created_at: '2026-07-15T11:20:00Z' }
     ];
   }
 };

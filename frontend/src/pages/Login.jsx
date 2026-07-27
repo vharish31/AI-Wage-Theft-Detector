@@ -58,6 +58,12 @@ export default function Login() {
     handleLogin(null, 'shwetha@wagedetector.com', 'User@123');
   };
 
+  const handleDemoEssakkideviLogin = () => {
+    setEmail('essakkidevi@wagedetector.com');
+    setPassword('User@123');
+    handleLogin(null, 'essakkidevi@wagedetector.com', 'User@123');
+  };
+
   return (
     <div className="max-w-md mx-auto py-8 sm:py-12 space-y-6">
       
@@ -166,7 +172,7 @@ export default function Login() {
             ⚡ Quick Demo Accounts
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {/* User Login Card (Harish) */}
             <button
               type="button"
@@ -193,6 +199,20 @@ export default function Login() {
               </div>
               <p className="text-[10px] text-slate-400 truncate">shwetha@wagedetector.com</p>
               <p className="text-[10px] text-purple-400 font-mono font-bold mt-1">Click to Login →</p>
+            </button>
+
+            {/* User Login Card (Essakkidevi) */}
+            <button
+              type="button"
+              onClick={handleDemoEssakkideviLogin}
+              className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/40 text-left transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-1 mb-1">
+                <UserCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="text-xs font-bold text-white group-hover:text-emerald-300 truncate">Essakkidevi (User)</span>
+              </div>
+              <p className="text-[10px] text-slate-400 truncate">essakkidevi@wagedetector.com</p>
+              <p className="text-[10px] text-emerald-400 font-mono font-bold mt-1">Click to Login →</p>
             </button>
 
             {/* Admin Login Card */}
